@@ -1,0 +1,1119 @@
+{
+    "SmartGroupExpenselist": [
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "total": 453.87,
+            "instances": 14,
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "ROSANOSERVICOSMED",
+            "total": 321.43,
+            "instances": 1,
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "total": 310.08,
+            "instances": 25,
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "MERCADOPAGO *MAGAZINE",
+            "total": 267.82,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "total": 244.29,
+            "instances": 15,
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "CARREFOUR GSC 651",
+            "total": 229.63,
+            "instances": 3,
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "HOTEL FAZENDA SALTO GR",
+            "total": 193.70,
+            "instances": 1,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "total": 152.25,
+            "instances": 5,
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "PATREON* MEMBERSHIP",
+            "total": 147.29,
+            "instances": 2,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "FAMA AUTO CENTER",
+            "total": 135.00,
+            "instances": 1,
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "MANUAL SAUDE",
+            "total": 124.00,
+            "instances": 1,
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "H7 ESPORTES",
+            "total": 119.99,
+            "instances": 1,
+            "category": "Roupas / Acessórios"
+        },
+        {
+            "expenseName": "IFD*M C LUTFI ALIMENTO",
+            "total": 114.00,
+            "instances": 2,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*MARIA LAURA PICHAR",
+            "total": 99.69,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ARCOS DOURADOS COM",
+            "total": 95.26,
+            "instances": 2,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*SAVEGNAGO-SUPERMER",
+            "total": 93.42,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "DM*UDEMY",
+            "total": 90.70,
+            "instances": 1,
+            "category": "Investimentos / Assinaturas profissionais"
+        },
+        {
+            "expenseName": "IFD*DROGARIA SAO PAULO",
+            "total": 86.27,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "AMAZON MARKETPLACE BR",
+            "total": 77.32,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "PETSHOPAMIGOCAO",
+            "total": 75.70,
+            "instances": 2,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "MP *MELIMAIS",
+            "total": 66.90,
+            "instances": 1,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "PPRO*MICROSOFT",
+            "total": 59.99,
+            "instances": 1,
+            "category": "Investimentos / Assinaturas profissionais"
+        },
+        {
+            "expenseName": "IFD*JOSE AFONSO DE OLI",
+            "total": 57.96,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*INGRESSOD",
+            "total": 57.63,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*JEFFERSON BORGES D",
+            "total": 56.48,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*3PRODUTO",
+            "total": 55.70,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*ESTACAO TREM BAO L",
+            "total": 51.88,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD *GABRIEL LANGHI",
+            "total": 47.99,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADO*INGRESSODIGIT",
+            "total": 46.10,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*EBAZARCO",
+            "total": 46.06,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*BADANART",
+            "total": 45.90,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "NETFLIX COM",
+            "total": 44.90,
+            "instances": 1,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "IFD*LOLS ALIMENTOS E B",
+            "total": 42.99,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ALESSANDRA DE SOUZ",
+            "total": 41.72,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*POLLO LOKO SAO CAR",
+            "total": 40.98,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*MARISA MENDES DE O",
+            "total": 39.89,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ALEX SANDRA DE OLI",
+            "total": 39.45,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*53 494 328 KAIO HE",
+            "total": 38.99,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "AMAZON BR",
+            "total": 37.25,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "HOSTGATOR",
+            "total": 36.55,
+            "instances": 1,
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "HUB*KABUM",
+            "total": 35.44,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*MARIA HELENA VICEN",
+            "total": 33.98,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MANUAL SAUDE BRASIL",
+            "total": 33.34,
+            "instances": 1,
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "IFD*26 628 556 DAIANY",
+            "total": 32.89,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "GOOGLE YOUTUBEPREMIUM",
+            "total": 26.90,
+            "instances": 1,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "IFD*CASA JARDIM GASTRO",
+            "total": 26.48,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*LAURACRI",
+            "total": 20.65,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "AMAZONPRIMEBR",
+            "total": 19.90,
+            "instances": 1,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "UBER UBER *ONE HELP UB",
+            "total": 19.90,
+            "instances": 1,
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "PAGTO SEGURO -SET/25",
+            "total": 16.94,
+            "instances": 1,
+            "category": "Outros / Transferências"
+        },
+        {
+            "expenseName": "PAG*STEAM",
+            "total": 15.66,
+            "instances": 1,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "IFD*IFOOD CLUB",
+            "total": 12.90,
+            "instances": 1,
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SCP ESSENCIAL- OUT/25",
+            "total": 10.50,
+            "instances": 1,
+            "category": "Moradia / Contas"
+        }
+    ],
+    "ExpensesByCategory": [
+        {
+            "value": 16.94,
+            "category": "Outros / Transferências"
+        },
+        {
+            "value": 119.99,
+            "category": "Roupas / Acessórios"
+        },
+        {
+            "value": 150.69,
+            "category": "Investimentos / Assinaturas profissionais"
+        },
+        {
+            "value": 199.30,
+            "category": "Moradia / Contas"
+        },
+        {
+            "value": 478.77,
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "value": 571.05,
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "value": 683.50,
+            "category": "Supermercado"
+        },
+        {
+            "value": 709.27,
+            "category": "Transporte / Auto"
+        },
+        {
+            "value": 709.77,
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "value": 1053.22,
+            "category": "Restaurante / Lanches"
+        }
+    ],
+    "AllExpenses": [
+        {
+            "expenseName": "ROSANOSERVICOSMED",
+            "value": 321.43,
+            "date": "11/09",
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "MERCADOPAGO *MAGAZINE",
+            "value": 267.82,
+            "date": "19/07",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "HOTEL FAZENDA SALTO GR",
+            "value": 193.70,
+            "date": "13/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "PATREON* MEMBERSHIP",
+            "value": 141.63,
+            "date": "04/10",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "FAMA AUTO CENTER",
+            "value": 135.00,
+            "date": "10/07",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "MANUAL SAUDE",
+            "value": 124.00,
+            "date": "31/08",
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "H7 ESPORTES",
+            "value": 119.99,
+            "date": "25/09",
+            "category": "Roupas / Acessórios"
+        },
+        {
+            "expenseName": "IFD*MARIA LAURA PICHAR",
+            "value": 99.69,
+            "date": "20/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*SAVEGNAGO-SUPERMER",
+            "value": 93.42,
+            "date": "27/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "CARREFOUR GSC 651",
+            "value": 91.64,
+            "date": "21/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "DM*UDEMY",
+            "value": 90.70,
+            "date": "17/09",
+            "category": "Investimentos / Assinaturas profissionais"
+        },
+        {
+            "expenseName": "CARREFOUR GSC 651",
+            "value": 90.66,
+            "date": "17/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "IFD*DROGARIA SAO PAULO",
+            "value": 86.27,
+            "date": "21/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "AMAZON MARKETPLACE BR",
+            "value": 77.32,
+            "date": "23/12",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "MP *MELIMAIS",
+            "value": 66.90,
+            "date": "19/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "PPRO*MICROSOFT",
+            "value": 59.99,
+            "date": "02/10",
+            "category": "Investimentos / Assinaturas profissionais"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "value": 59.90,
+            "date": "17/09",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "IFD*M C LUTFI ALIMENTO",
+            "value": 59.39,
+            "date": "17/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*JOSE AFONSO DE OLI",
+            "value": 57.96,
+            "date": "10/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*INGRESSOD",
+            "value": 57.63,
+            "date": "24/07",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*JEFFERSON BORGES D",
+            "value": 56.48,
+            "date": "14/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*3PRODUTO",
+            "value": 55.70,
+            "date": "18/04",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*M C LUTFI ALIMENTO",
+            "value": 54.61,
+            "date": "10/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ESTACAO TREM BAO L",
+            "value": 51.88,
+            "date": "11/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ARCOS DOURADOS COM",
+            "value": 51.38,
+            "date": "25/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD *GABRIEL LANGHI",
+            "value": 47.99,
+            "date": "28/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "PETSHOPAMIGOCAO",
+            "value": 47.70,
+            "date": "20/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "CARREFOUR GSC 651",
+            "value": 47.33,
+            "date": "26/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "MERCADO*INGRESSODIGIT",
+            "value": 46.10,
+            "date": "04/09",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*EBAZARCO",
+            "value": 46.06,
+            "date": "11/03",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*BADANART",
+            "value": 45.90,
+            "date": "19/02",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "NETFLIX COM",
+            "value": 44.90,
+            "date": "04/10",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 44.80,
+            "date": "19/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 44.37,
+            "date": "20/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "IFD*ARCOS DOURADOS COM",
+            "value": 43.88,
+            "date": "21/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 43.43,
+            "date": "29/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "IFD*LOLS ALIMENTOS E B",
+            "value": 42.99,
+            "date": "25/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 42.23,
+            "date": "16/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "IFD*ALESSANDRA DE SOUZ",
+            "value": 41.72,
+            "date": "27/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 41.65,
+            "date": "24/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "IFD*POLLO LOKO SAO CAR",
+            "value": 40.98,
+            "date": "12/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*MARISA MENDES DE O",
+            "value": 39.89,
+            "date": "14/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*ALEX SANDRA DE OLI",
+            "value": 39.45,
+            "date": "21/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*53 494 328 KAIO HE",
+            "value": 38.99,
+            "date": "07/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 38.58,
+            "date": "22/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "AMAZON BR",
+            "value": 37.25,
+            "date": "14/06",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "HOSTGATOR",
+            "value": 36.55,
+            "date": "11/03",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 36.21,
+            "date": "21/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "HUB*KABUM",
+            "value": 35.44,
+            "date": "10/01",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "IFD*MARIA HELENA VICEN",
+            "value": 33.98,
+            "date": "26/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "MANUAL SAUDE BRASIL",
+            "value": 33.34,
+            "date": "01/10",
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "value": 33.00,
+            "date": "01/10",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "IFD*26 628 556 DAIANY",
+            "value": 32.89,
+            "date": "27/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "PETSHOPAMIGOCAO",
+            "value": 28.00,
+            "date": "23/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 27.98,
+            "date": "23/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 27.98,
+            "date": "18/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "GOOGLE YOUTUBEPREMIUM",
+            "value": 26.90,
+            "date": "27/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "IFD*CASA JARDIM GASTRO",
+            "value": 26.48,
+            "date": "19/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "value": 24.90,
+            "date": "22/09",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 23.53,
+            "date": "24/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 22.86,
+            "date": "25/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 22.77,
+            "date": "23/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 22.25,
+            "date": "25/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 21.78,
+            "date": "28/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 21.14,
+            "date": "06/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 21.06,
+            "date": "09/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 20.96,
+            "date": "23/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 20.93,
+            "date": "16/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 20.89,
+            "date": "15/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 20.87,
+            "date": "30/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 20.86,
+            "date": "29/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 20.75,
+            "date": "22/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "MERCADOLIVRE*LAURACRI",
+            "value": 20.65,
+            "date": "25/03",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 20.35,
+            "date": "18/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 20.22,
+            "date": "29/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 20.10,
+            "date": "02/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 20.08,
+            "date": "22/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "AMAZONPRIMEBR",
+            "value": 19.90,
+            "date": "08/09",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "UBER UBER *ONE HELP UB",
+            "value": 19.90,
+            "date": "16/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 19.52,
+            "date": "12/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 19.02,
+            "date": "08/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "value": 18.95,
+            "date": "17/09",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 18.87,
+            "date": "15/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 18.84,
+            "date": "16/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 18.84,
+            "date": "24/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 18.73,
+            "date": "30/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 18.47,
+            "date": "23/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "SUPERMERC SERV BEM",
+            "value": 16.98,
+            "date": "27/09",
+            "category": "Supermercado"
+        },
+        {
+            "expenseName": "PAGTO SEGURO -SET/25",
+            "value": 16.94,
+            "date": "10/09",
+            "category": "Outros / Transferências"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 16.53,
+            "date": "06/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 15.90,
+            "date": "08/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "PAG*STEAM",
+            "value": 15.66,
+            "date": "16/08",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "APPLE COM/BILL",
+            "value": 15.50,
+            "date": "16/09",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 14.00,
+            "date": "11/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "IFD*IFOOD CLUB",
+            "value": 12.90,
+            "date": "13/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "SCP ESSENCIAL- OUT/25",
+            "value": 10.50,
+            "date": "01/10",
+            "category": "Moradia / Contas"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 9.49,
+            "date": "19/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 8.08,
+            "date": "05/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 7.90,
+            "date": "19/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 6.90,
+            "date": "21/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 6.89,
+            "date": "11/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 6.46,
+            "date": "26/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 6.29,
+            "date": "17/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 6.26,
+            "date": "04/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 5.97,
+            "date": "01/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "PATREON* MEMBERSHIP",
+            "value": 5.66,
+            "date": "28/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 5.52,
+            "date": "21/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 5.43,
+            "date": "05/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 5.15,
+            "date": "17/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 4.89,
+            "date": "12/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 4.89,
+            "date": "12/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 4.77,
+            "date": "26/09",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER UBER *TRIP HELP U",
+            "value": 4.56,
+            "date": "04/10",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "UBER* TRIP",
+            "value": 4.46,
+            "date": "01/10",
+            "category": "Transporte / Auto"
+        }
+    ],
+    "sessionToken": "hcwnqw5q4l8",
+    "BiggestSingularExpense": {
+        "expenseName": "ROSANOSERVICOSMED",
+        "value": 321.43,
+        "date": "11/09",
+        "category": "Saúde / Farmácia / Bem-estar"
+    },
+    "Top10Expenses": [
+        {
+            "expenseName": "ROSANOSERVICOSMED",
+            "value": 321.43,
+            "date": "11/09",
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "MERCADOPAGO *MAGAZINE",
+            "value": 267.82,
+            "date": "19/07",
+            "category": "E-commerce / Compras online"
+        },
+        {
+            "expenseName": "HOTEL FAZENDA SALTO GR",
+            "value": 193.70,
+            "date": "13/09",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "PATREON* MEMBERSHIP",
+            "value": 141.63,
+            "date": "04/10",
+            "category": "Lazer / Entretenimento / Pets"
+        },
+        {
+            "expenseName": "FAMA AUTO CENTER",
+            "value": 135.00,
+            "date": "10/07",
+            "category": "Transporte / Auto"
+        },
+        {
+            "expenseName": "MANUAL SAUDE",
+            "value": 124.00,
+            "date": "31/08",
+            "category": "Saúde / Farmácia / Bem-estar"
+        },
+        {
+            "expenseName": "H7 ESPORTES",
+            "value": 119.99,
+            "date": "25/09",
+            "category": "Roupas / Acessórios"
+        },
+        {
+            "expenseName": "IFD*MARIA LAURA PICHAR",
+            "value": 99.69,
+            "date": "20/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "IFD*SAVEGNAGO-SUPERMER",
+            "value": 93.42,
+            "date": "27/09",
+            "category": "Restaurante / Lanches"
+        },
+        {
+            "expenseName": "CARREFOUR GSC 651",
+            "value": 91.64,
+            "date": "21/09",
+            "category": "Supermercado"
+        }
+    ]
+}
