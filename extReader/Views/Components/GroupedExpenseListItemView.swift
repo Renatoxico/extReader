@@ -17,6 +17,12 @@ struct GroupedExpenseListItemView: View {
             Image(systemName: iconName)
                 .foregroundColor(catColor)
                 .font(.title2)
+                .background(
+                    Circle()
+                        .fill(catColor.opacity(0.15))
+                        .scaleEffect(1.8)
+                )
+                .padding(.trailing, 6)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(expense.expenseName)")

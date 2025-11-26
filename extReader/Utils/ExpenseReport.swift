@@ -12,7 +12,7 @@ struct ExpenseResponse: Codable {
     let AllExpenses: [DetailedExpense]
     let sessionToken: String
     let BiggestSingularExpense: DetailedExpense
-    let Top10Expenses: [DetailedExpense]
+    let NotableDays: [NotableDay]
     let ExpensesByCategory: [TotalByCategory]
 }
 
@@ -36,6 +36,17 @@ struct TotalByCategory: Codable, Identifiable {
     
     enum CodingKeys: CodingKey {
         case category, value
+    }
+}
+
+struct NotableDay: Codable, Identifiable {
+    let id = UUID()
+    let date: String
+    let total: Double
+    let transactions: Int
+    
+    enum CodingKeys: CodingKey {
+        case date, total, transactions
     }
 }
 

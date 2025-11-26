@@ -105,7 +105,14 @@ struct CategoryChartView: View {
             .padding(.horizontal)
         }
         .padding(.top)
+        .padding(.bottom)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
+        )
     }
+    
 }
 
 #Preview {

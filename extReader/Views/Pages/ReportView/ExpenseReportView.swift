@@ -13,40 +13,40 @@ struct ExpenseReportView: View {
     @State private var showErrorAlert = false
             
     var body: some View {
+        let busiestDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first
+        let expensiveDay = report.NotableDays.sorted{$0.total > $1.total}.first
+        let recurringExpense = report.SmartGroupExpenselist.sorted{$0.instances > $1.instances}.first
+        var showWarning = report.AllExpenses.contains(where:    { $0.category == "" })
         ZStack {
             BackgroundView()
             ScrollView {
                     VStack {
-                        if(report.AllExpenses.contains(where:    { $0.category == "" })){
+                        if(showWarning){
                             HStack{
                                 Text("Despesas não categorizadas totalmente!")
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.white)
                                     .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(Color.yellow)
+                                    .background(Color.yellow.opacity(0.5))
                                     .cornerRadius(0)
                                     .shadow(radius: 4)
                                     .transition(.move(edge: .top).combined(with: .opacity))
                                     .zIndex(1)
+                                    .onTapGesture {
+                                        showWarning = false
+                                    }
                             }
                         }
                         Divider()
                         CategoryChartView(report: report)
-                            .scaledToFit()
-                            .padding(.bottom)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.secondarySystemBackground))
-                                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
-                            )
+                            //.scaledToFit()
+                            
                         Divider()
-                        NavigationLink (destination: ExpenseDetailView(expense: report.BiggestSingularExpense)) {
-                            BiggestExpenseView(expense: report.BiggestSingularExpense)
+                        if((busiestDay != nil) && (expensiveDay != nil) && (recurringExpense != nil))
+                        {
+                            ExpenseDashboardView(report: report)
                         }
-                        //Divider()
-                        //TopExpensesView(expenses: (report.Top10Expenses))
-                        ExpenseHighlightsView()
                         Divider()
                         ExpensesView(groupedList: report.SmartGroupExpenselist, allExpenses: report.AllExpenses)
 

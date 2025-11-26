@@ -38,7 +38,7 @@ struct ExpenseHighlightsView: View {
                     print("Tapped Dia com Mais Despesas")
                 }
             }
-            .padding(.horizontal)
+            //.padding(.horizontal)
         }
     }
 }
