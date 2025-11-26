@@ -19,7 +19,7 @@ struct ExpenseDashboardView: View {
         let busyDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first!
         let expensiveDay = report.NotableDays.sorted{$0.total > $1.total}.first!
         let commonExpense = report.SmartGroupExpenselist.sorted{$0.instances > $1.instances}.first!
-        let topExpenses = Array (report.SmartGroupExpenselist.sorted{$0.total > $1.total}.prefix(5))
+        let topExpenses = Array (report.SmartGroupExpenselist.sorted{$0.total > $1.total}.prefix(3))
       
         let comprasRecorrentes = report.AllExpenses.filter { $0.expenseName == commonExpense.expenseName }
         let busyDayExpenses = report.AllExpenses.filter { $0.date == busyDay.date }
@@ -75,7 +75,7 @@ struct ExpenseDashboardView: View {
                 }
             }
             //.padding(.horizontal)
-            ExpensesView(groupedList: topExpenses, allExpenses: report.AllExpenses)
+            TopExpensesView(groupedList: topExpenses, allExpenses: report.AllExpenses)
         }
     }
 }

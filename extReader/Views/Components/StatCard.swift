@@ -33,8 +33,9 @@ struct StatCard: View {
                     .font(.caption2)
                     .foregroundColor(accentColor)
             }
+            .padding(.bottom,5)
             
-            Spacer()
+            //Spacer()
             
             // Content
             VStack(alignment: .leading, spacing: 4) {
@@ -58,7 +59,7 @@ struct StatCard: View {
             }
         }
         .padding(16)
-        .frame(height: 160) // Fixed height for uniformity
+        .frame(height: 150) // Fixed height for uniformity
         .background(Color(.secondarySystemGroupedBackground)) // Pure white in light mode, dark gray in dark
         .cornerRadius(20)
         // Subtle shadow for "Pop"

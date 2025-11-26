@@ -5,29 +5,37 @@
 //  Created by Renato Dias on 02/11/25.
 //
 
-
 import SwiftUI
 
 struct TopExpensesView: View {
-    let expenses: [DetailedExpense] // ExpenseItem has name and amount
+    @State var groupedList: [GroupedExpense]
+    @State var allExpenses: [DetailedExpense]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Maiores Despesas")
                 .font(.headline)
                 .foregroundColor(.secondary)
-                .padding(.horizontal)
 
             VStack(spacing: 0) {
-                ForEach(expenses) { expense in
-                    NavigationLink (destination:ExpenseDetailView(expense: expense))
-                    {
-                        VStack{
-                            ExpenseListItemView(expense: expense)
-                            Divider()
+                ForEach(groupedList) { expense in
+                    let expenses = allExpenses.filter { $0.expenseName == expense.expenseName }
+                    
+                    NavigationLink {
+                        if expense.instances == 1 {
+                            ExpenseDetailView(expense: expenses.first!)
+                        } else {
+                            CategoryListView(category: expense.expenseName, expenses: expenses, total: expense.total)
                         }
+                    } label: {
+                        GroupedExpenseCard(expense: expense)
+                            .padding()
                     }
+                    .foregroundColor(.primary)
                 }
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .padding(.bottom)
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
