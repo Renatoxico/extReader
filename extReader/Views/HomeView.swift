@@ -46,7 +46,7 @@ struct HomeView: View {
                             .tag(2)
                     }.navigationDestination(isPresented: $goToDetails) {
                         if let expenses = expenses {
-                            ExpenseReportView(report: expenses)
+                            ExpenseReportViewTabs(report: expenses)
                         } else {
                             Text("No data") // fallback
                         }
