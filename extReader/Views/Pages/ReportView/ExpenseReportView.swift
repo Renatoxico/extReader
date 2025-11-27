@@ -19,40 +19,38 @@ struct ExpenseReportView: View {
         var showWarning = report.AllExpenses.contains(where:    { $0.category == "" })
         ZStack {
             BackgroundView()
-            ScrollView {
-                    VStack {
-                        if(showWarning){
-                            HStack{
-                                Text("Despesas não categorizadas totalmente!")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.yellow.opacity(0.5))
-                                    .cornerRadius(0)
-                                    .shadow(radius: 4)
-                                    .transition(.move(edge: .top).combined(with: .opacity))
-                                    .zIndex(1)
-                                    .onTapGesture {
-                                        showWarning = false
-                                    }
-                            }
+            if(showWarning){
+                HStack{
+                    Text("Despesas não categorizadas totalmente!")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.yellow.opacity(0.5))
+                        .cornerRadius(0)
+                        .shadow(radius: 4)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(1)
+                        .onTapGesture {
+                            showWarning = false
                         }
-                        Divider()
-                        CategoryChartView(report: report)
-                            //.scaledToFit()
-                            
-                        Divider()
-                        if((busiestDay != nil) && (expensiveDay != nil) && (recurringExpense != nil))
-                        {
-                            ExpenseDashboardView(report: report)
-                        }
-                        Divider()
-                        ExpensesView(groupedList: report.SmartGroupExpenselist, allExpenses: report.AllExpenses)
-
-                    }
-                    .padding()
+                }
             }
+            ScrollView {
+                VStack {
+                    CategoryChartView(report: report)
+                        
+                    if((busiestDay != nil) && (expensiveDay != nil) && (recurringExpense != nil))
+                    {
+                        ExpenseDashboardView(report: report)
+                    }
+                    
+                    ExpensesView(groupedList: report.SmartGroupExpenselist, allExpenses: report.AllExpenses)
+
+                }
+                //.padding()
+            }
+            .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .navigationTitle("Relatório \(report.sessionToken)")
             .alert("Error", isPresented: $showErrorAlert) {
