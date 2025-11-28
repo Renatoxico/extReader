@@ -20,20 +20,21 @@ struct HomeView: View {
                 VStack {
                     
                     TabView(selection: $selectedTab) {
-                        SearchSessionView{result in
-                            self.expenses = result
-                            self.goToDetails = true}
-                            .environment(\.colorScheme, .dark)
-                            .tabItem {
-                                Label("Pesquisar", systemImage:"magnifyingglass")
-                            }
-                            .tag(0)
+//                        SearchSessionView{result in
+//                            self.expenses = result
+//                            self.goToDetails = true}
+//                            .environment(\.colorScheme, .dark)
+//                            .tabItem {
+//                                Label("Pesquisar", systemImage:"magnifyingglass")
+//                            }
+//                            .tag(0)
                         UploadExpenseView{result in
                             self.expenses = result
                             self.goToDetails = true}
                             .environment(\.colorScheme, .dark)
                             .tabItem {
                                 Label("Enviar", systemImage: "house")
+                                    .padding()
                             }
                             .tag(1)
                         HistoryView{result in
@@ -42,6 +43,7 @@ struct HomeView: View {
                             .environment(\.colorScheme, .dark)
                             .tabItem {
                                 Label("Histórico", systemImage: "clock")
+                                    .padding()
                             }
                             .tag(2)
                     }.navigationDestination(isPresented: $goToDetails) {

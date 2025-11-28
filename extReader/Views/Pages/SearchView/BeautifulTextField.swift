@@ -54,5 +54,7 @@ struct BeautifulTextField: View {
                     .stroke(Color.gray.opacity(0.2), lineWidth: 1)
             )
         }
+        .padding(.horizontal, 30)
+        .shadow(color: .green.opacity(0.25), radius: 8, y: 3)
     }
 }

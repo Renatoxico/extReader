@@ -10,7 +10,6 @@ import SwiftUI
 
 struct HistoryItemView: View {
     let sessionId: String
-//    let onDelete: () -> Void
 
     var body: some View {
         HStack {
@@ -24,18 +23,10 @@ struct HistoryItemView: View {
                 .truncationMode(.tail)
 
             Spacer()
-
-                Image(systemName: "trash")
-                    .foregroundColor(.red)
-           
         }
         .padding(.vertical, 6)
     }
     
-    func deleteSession(_ sessionId: String) {
-        var history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
-        history.removeAll { $0 == sessionId }
-        UserDefaults.standard.set(history, forKey: "historyItems")
-    }
+    
 }
 

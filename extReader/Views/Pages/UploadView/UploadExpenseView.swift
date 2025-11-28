@@ -35,7 +35,15 @@ struct UploadExpenseView: View {
                     .fontWeight(.semibold)
                 
                 // Selected Files List
-                SelectedFilesView(selectedFiles: $fileSelector.selectedFiles)
+                if (!$fileSelector.selectedFiles.isEmpty){
+                    SelectedFilesView(selectedFiles: $fileSelector.selectedFiles)
+                }
+                else{
+                    NoFilesView()
+                        .onTapGesture {
+                            showingDocumentPicker = true
+                        }
+                }
                 
                 // Pick Files Button
                 HStack{
@@ -104,7 +112,7 @@ struct UploadExpenseView: View {
             Spacer()
         }
         .alert("Error", isPresented: $showErrorAlert) {
-                            Button("OK", role: .cancel) {}
+            Button("OK", role: .cancel) {}
         }
         message: {
                 Text("Houve um erro na comunicação com o servidor.")

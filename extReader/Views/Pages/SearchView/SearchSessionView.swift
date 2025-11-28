@@ -22,22 +22,6 @@ struct SearchSessionView: View {
                                                     to: nil, from: nil, for: nil)
                 }
             VStack(spacing: 40) {
-                            // Logo
-                            VStack(spacing: 12) {
-                                Image("logo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    //.shadow(color: .green.opacity(0.4), radius: 12, x: 0, y: 6)
-
-                                Text("Buscar Relatórios")
-                                    .font(.title2.bold())
-                                    //.foregroundColor(.green.opacity(0.9))
-                                    .tracking(0.5)
-                            }
-                            .padding(.top, 60)
-
-                            // Search field
                             BeautifulTextField(
                                 title: "Session ID",
                                 iconName: "magnifyingglass",
@@ -80,7 +64,6 @@ struct SearchSessionView: View {
                                 .disabled(isLoading)
                             }
 
-                            Spacer()
                         }
             if isLoading {
             Color.black.opacity(0.4) // dim background
