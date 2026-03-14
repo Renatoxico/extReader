@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4A7574742EDA3BBA004B5A47 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 4A7574732EDA3BBA004B5A47 /* DGCharts */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		4A1D9CAA2E884C6100F8322A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -49,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7574742EDA3BBA004B5A47 /* DGCharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +97,7 @@
 			);
 			name = extReader;
 			packageProductDependencies = (
+				4A7574732EDA3BBA004B5A47 /* DGCharts */,
 			);
 			productName = extReader;
 			productReference = 4A8828002DE395C4005AA546 /* extReader.app */;
@@ -122,6 +128,7 @@
 			mainGroup = 4A8827F72DE395C4005AA546;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				4A7574722EDA3BBA004B5A47 /* XCRemoteSwiftPackageReference "Charts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4A8828012DE395C4005AA546 /* Products */;
@@ -355,6 +362,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4A7574722EDA3BBA004B5A47 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ChartsOrg/Charts";
+			requirement = {
+				kind = exactVersion;
+				version = 5.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4A7574732EDA3BBA004B5A47 /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4A7574722EDA3BBA004B5A47 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4A8827F82DE395C4005AA546 /* Project object */;
 }

@@ -48,7 +48,7 @@ struct ExpenseReportViewTabs: View {
             .tabViewStyle(.page)
             .indexViewStyle(.page)
             .ignoresSafeArea()
-            .padding(.horizontal)
+            //.padding(.horizontal)
             .frame(maxWidth: .infinity)
             .navigationTitle("Relatório \(report.sessionToken)")
             .alert("Error", isPresented: $showErrorAlert) {

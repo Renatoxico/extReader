@@ -24,8 +24,9 @@ struct CategoryChartView: View {
         VStack(spacing: 24) {
             VStack(spacing: 4) {
                 Text("Despesas por Categoria")
-                    .font(.title2.weight(.semibold))
+                    .font(.title3.bold())
                     .foregroundColor(.primary)
+                    .padding(.horizontal, 4)
                 
                 Text("Resumo das categorias neste período")
                     .font(.subheadline)
@@ -35,17 +36,24 @@ struct CategoryChartView: View {
             ZStack {
                 VStack(spacing: 0) {
                     Chart(categories, id: \.category) { item in
+                        let pct = item.value / totalExpenses * 100
                         SectorMark(
                             angle: .value("Total", item.value),
                             innerRadius: .ratio(0.6),
                             angularInset: 2
-                        )
+                        ).annotation(position: .overlay) {
+                            if pct > 3{
+                                Text("\(String(format: "%.1f", pct))%")
+                                    .font(.caption)
+                                    .foregroundColor(.black)
+                            }
+                        }
                         .foregroundStyle(Color.forCategory(item.category))
                         .cornerRadius(5)
                         .shadow(color: .white.opacity(0.08), radius: 4)
                     }
-                    .padding(.bottom)
-                    .frame(height: 320)
+                    .scaledToFit()
+                    //.frame(width: 350, height: 320)
                     .chartBackground { chartProxy in
                         GeometryReader { geometry in
                             if let anchor = chartProxy.plotFrame {
@@ -55,13 +63,13 @@ struct CategoryChartView: View {
                                 } label: {
                                     VStack(spacing: 4) {
                                         Text("Total")
-                                            .font(.caption)
+                                            .font(.title3)
                                             .foregroundColor(.secondary)
                                         Text("R$ \(String(format: "%.2f", totalExpenses))")
                                             .font(.title3.weight(.semibold))
                                             .foregroundColor(.green)
                                     }
-                                    .frame(width: 120, height: 120)
+                                    .frame(width: 150, height: 150)
                                     .contentShape(Circle())
                                 }
                                 .buttonStyle(.plain)
@@ -69,9 +77,8 @@ struct CategoryChartView: View {
                             }
                         }
                     }
-                    
-                    //Divider().padding(.horizontal, 24)
-                    
+                    .padding(.bottom)
+                                        
                     // Legend
                     LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
                         ForEach(categories, id: \.category) { item in
@@ -104,12 +111,14 @@ struct CategoryChartView: View {
             }
             .padding(.horizontal)
         }
+        //.padding(.horizontal)
         .padding(.top)
         .padding(.bottom)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.secondarySystemBackground))
                 .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
+                .padding(.horizontal,8)
         )
     }
     

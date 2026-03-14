@@ -19,21 +19,22 @@ struct ExpenseDashboardView: View {
         let busyDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first!
         let expensiveDay = report.NotableDays.sorted{$0.total > $1.total}.first!
         let commonExpense = report.SmartGroupExpenselist.sorted{$0.instances > $1.instances}.first!
-        let topExpenses = Array (report.SmartGroupExpenselist.sorted{$0.total > $1.total}.prefix(3))
-      
+        let topExpenses = Array(report.SmartGroupExpenselist.sorted{$0.total > $1.total}.prefix(3))
+
         let comprasRecorrentes = report.AllExpenses.filter { $0.expenseName == commonExpense.expenseName }
         let busyDayExpenses = report.AllExpenses.filter { $0.date == busyDay.date }
         let expensiveDayExpenses = report.AllExpenses.filter { $0.date == expensiveDay.date }
-        
-        VStack(alignment: .leading, spacing: 10) {
-            
-            VStack(alignment: .leading) {
-                Text("Destaques do Extrato")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-            }
-            LazyVGrid(columns: columns, spacing: 16) {
-                // 1. Biggest Singular Expense -> Opens Detail
+
+        VStack(alignment: .leading, spacing: 20) {
+
+            // Título reforçado
+            Text("Destaques do Extrato")
+                .font(.title3.bold())
+                .foregroundColor(.primary)
+                .padding(.horizontal, 4)
+
+            // Grid
+            LazyVGrid(columns: columns, spacing: 20) {
                 NavigationLink(destination: ExpenseDetailView(expense: biggestExpense)) {
                     StatCard(
                         title: "Maior Compra",
@@ -43,7 +44,6 @@ struct ExpenseDashboardView: View {
                         accentColor: .orange
                     )
                 }
-                // 2. Compra Mais Recorrente
                 NavigationLink(destination: CategoryListView(category: "Compra Mais Recorrente", expenses: comprasRecorrentes, total: commonExpense.total)) {
                     StatCard(
                         title: "Compra Mais Recorrente",
@@ -53,7 +53,6 @@ struct ExpenseDashboardView: View {
                         accentColor: .blue
                     )
                 }
-                // 3. Dia Mais Movimentado
                 NavigationLink(destination: CategoryListView(category: "Dia mais Movimentado", expenses: busyDayExpenses, total: busyDay.total)) {
                     StatCard(
                         title: "Dia Mais Movimentado",
@@ -63,7 +62,6 @@ struct ExpenseDashboardView: View {
                         accentColor: .purple
                     )
                 }
-                // 4. Dia Mais Caro
                 NavigationLink(destination: CategoryListView(category: "Dia mais Caro", expenses: expensiveDayExpenses, total: expensiveDay.total)) {
                     StatCard(
                         title: "Dia Mais Caro",
@@ -74,9 +72,25 @@ struct ExpenseDashboardView: View {
                     )
                 }
             }
-            //.padding(.horizontal)
+            .padding(.horizontal, 4)
+
+            // Separador suave
+            Divider()
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
+
+            // Top Expenses
             TopExpensesView(groupedList: topExpenses, allExpenses: report.AllExpenses)
+                .padding(.top, 4)
         }
+        .padding(.top)
+        .padding(.bottom, 20)
+        .padding(.horizontal, 8)
     }
+
 }
 
+#Preview {
+    let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
+    ExpenseDashboardView(report: mock)
+}

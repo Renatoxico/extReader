@@ -14,8 +14,10 @@ struct TopExpensesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Maiores Despesas")
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .font(.title3.bold())
+                .foregroundColor(.primary)
+                .padding(.horizontal, 4)
+                .padding(.bottom, 10)
 
             VStack(spacing: 0) {
                 ForEach(groupedList) { expense in
@@ -41,8 +43,14 @@ struct TopExpensesView: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color(.secondarySystemBackground))
                     .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
+                    //.padding(.horizontal,8)
             )
-            //.padding(.horizontal)
         }
+        .padding(.horizontal,8)
     }
+}
+
+#Preview {
+    let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
+    ExpenseDashboardView(report: mock)
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 extension String {
     static func errorDescription(_ code: String) -> String {
@@ -54,6 +55,23 @@ extension String {
     }
 }
 
+extension UIColor {
+    static func forCategory(_ category: String) -> UIColor {
+        switch category {
+        case "Roupas / Acessórios": return .purple
+        case "E-commerce / Compras online": return .systemIndigo
+        case "Restaurante / Lanches": return .systemOrange
+        case "Investimentos / Assinaturas profissionais": return .systemBlue
+        case "Saúde / Farmácia / Bem-estar": return .systemRed
+        case "Transporte / Auto": return .systemGray
+        case "Lazer / Entretenimento / Pets": return .systemYellow
+        case "Supermercado": return .systemGreen
+        case "Outros / Transferências": return .brown
+        case "Moradia / Contas": return .systemMint
+        default: return .secondaryLabel
+        }
+    }
+}
 
 extension Bundle {
     func decode<T: Decodable>(_ type: T.Type, from file: String) -> T {

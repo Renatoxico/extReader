@@ -15,9 +15,9 @@ struct ExpensesView: View {
         ScrollView{
             VStack(alignment: .leading, spacing: 5) {
                 Text("Todas Despesas Agrupadas")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
-                    //.padding(.horizontal)
+                    .font(.title3.bold())
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 4)
                     .padding(.bottom)
                 
                 VStack(spacing: 0) {
@@ -43,5 +43,6 @@ struct ExpensesView: View {
             }
             .padding(.top)
         }
+        .padding(.horizontal,8)
     }
 }

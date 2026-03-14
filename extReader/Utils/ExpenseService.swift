@@ -8,8 +8,8 @@
 import Foundation
 
 class ExpenseService {
-    private let baseUrl = "http://192.168.15.3:9090/extract/";
-//    private let baseUrl = "https://poderdamudanca.com/extract/"
+    //private let baseUrl = "http://192.168.15.3:9090/extract/";
+    private let baseUrl = "https://api.renatoxico.net/extract/"
    
     static let shared = ExpenseService()
     private init() {}

@@ -50,7 +50,7 @@ struct ExpenseReportView: View {
                 }
                 //.padding()
             }
-            .padding(.horizontal)
+            //.padding(.horizontal)
             .frame(maxWidth: .infinity)
             .navigationTitle("Relatório \(report.sessionToken)")
             .alert("Error", isPresented: $showErrorAlert) {
