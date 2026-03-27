@@ -8,8 +8,6 @@ import SwiftUI
 
 struct ExpenseReportViewTabs: View {
     @State var report: ExpenseResponse
-    @State private var isLoading = false
-    @State private var showErrorAlert = false
             
     var body: some View {
         let busiestDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first
@@ -48,32 +46,8 @@ struct ExpenseReportViewTabs: View {
             .tabViewStyle(.page)
             .indexViewStyle(.page)
             .ignoresSafeArea()
-            //.padding(.horizontal)
             .frame(maxWidth: .infinity)
-            .navigationTitle("Relatório \(report.sessionToken)")
-            .alert("Error", isPresented: $showErrorAlert) {
-                                Button("OK", role: .cancel) {}
-            }
-            message: {
-                    Text("Houve um erro na comunicação com o servidor.")
-            }
         }
-    }
-    
-    func refreshData() async {
-        isLoading = true
-        do {
-            let res = try await ExpenseService.shared.fetchExpenses(sessionId: report.sessionToken)
-            DispatchQueue.main.async {
-                self.report = res
-            }
-        } catch {
-            DispatchQueue.main.async {
-                print("Deu Error: \(error.localizedDescription)")
-                self.showErrorAlert = true
-            }
-        }
-        isLoading = false
     }
 }
 

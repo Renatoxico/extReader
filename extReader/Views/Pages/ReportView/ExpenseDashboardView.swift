@@ -13,19 +13,28 @@ struct ExpenseDashboardView: View {
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
     ]
-    
-    var body: some View {
-        let biggestExpense = report.BiggestSingularExpense
-        let busyDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first!
-        let expensiveDay = report.NotableDays.sorted{$0.total > $1.total}.first!
-        let commonExpense = report.SmartGroupExpenselist.sorted{$0.instances > $1.instances}.first!
-        let topExpenses = Array(report.SmartGroupExpenselist.sorted{$0.total > $1.total}.prefix(3))
 
+    private var busyDay: NotableDay? {
+        report.NotableDays.sorted { $0.transactions > $1.transactions }.first
+    }
+    private var expensiveDay: NotableDay? {
+        report.NotableDays.sorted { $0.total > $1.total }.first
+    }
+    private var commonExpense: GroupedExpense? {
+        report.SmartGroupExpenselist.sorted { $0.instances > $1.instances }.first
+    }
+
+    var body: some View {
+        guard let busyDay, let expensiveDay, let commonExpense else {
+            return AnyView(EmptyView())
+        }
+        let biggestExpense = report.BiggestSingularExpense
+        let topExpenses = Array(report.SmartGroupExpenselist.sorted { $0.total > $1.total }.prefix(3))
         let comprasRecorrentes = report.AllExpenses.filter { $0.expenseName == commonExpense.expenseName }
         let busyDayExpenses = report.AllExpenses.filter { $0.date == busyDay.date }
         let expensiveDayExpenses = report.AllExpenses.filter { $0.date == expensiveDay.date }
 
-        VStack(alignment: .leading, spacing: 20) {
+        return AnyView(VStack(alignment: .leading, spacing: 20) {
 
             // Título reforçado
             Text("Destaques do Extrato")
@@ -86,6 +95,7 @@ struct ExpenseDashboardView: View {
         .padding(.top)
         .padding(.bottom, 20)
         .padding(.horizontal, 8)
+        )
     }
 
 }

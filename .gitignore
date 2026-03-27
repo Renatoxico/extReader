@@ -1,0 +1,14 @@
+# Secrets — never commit real credentials
+Secrets.xcconfig
+
+# Xcode
+*.xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.xcarchive
+
+# macOS
+.DS_Store

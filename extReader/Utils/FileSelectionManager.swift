@@ -1,5 +1,5 @@
 //
-//  FileSelectorContraption.swift
+//  FileSelectionManager.swift
 //  extReader
 //
 //  Created by Renato Dias on 26/10/25.
@@ -8,7 +8,7 @@
 import Foundation
 
 
-class FileSelectorContraption: ObservableObject {
+class FileSelectionManager: ObservableObject {
     @Published var selectedFiles: [URL] = []
 
     func addFile(_ url: URL) {

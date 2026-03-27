@@ -9,13 +9,13 @@ import UniformTypeIdentifiers
 
 struct UploadExpenseView: View {
     var onSuccess: (ExpenseResponse) -> Void
-    //@State private var selectedFiles: [URL] = []
-    @EnvironmentObject var fileSelector: FileSelectorContraption
+    @EnvironmentObject var fileSelector: FileSelectionManager
     @State private var showingDocumentPicker = false
     @State private var isLoading = false
     @State private var showAlert = false
     @State private var invalidFileName = ""
     @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     private let maxFileCount = 4
     
     var body: some View {
@@ -113,17 +113,16 @@ struct UploadExpenseView: View {
         }
         .alert("Error", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) {}
-        }
-        message: {
-                Text("Houve um erro na comunicação com o servidor.")
+        } message: {
+            Text(errorMessage)
         }
     }
     
     func sendFiles(files: [URL], onInvalid: (_ invalidFile: URL) -> Void) async {
         for file in files {
             if file.pathExtension.lowercased() != "pdf" {
-                //files.removeAll { $0 == file } // remove the bad file
-                onInvalid(file)                // trigger alert or action
+                onInvalid(file)
+
                 return                         // exit early
             }
         }
@@ -131,19 +130,14 @@ struct UploadExpenseView: View {
         do {
             let res = try await ExpenseService.shared.processFiles(files)
             onSuccess(res)
-            addToHistory(res.sessionToken)
-        }catch {
-            print("Error: \(error.localizedDescription)")
+            SessionHistoryService.shared.add(res.sessionToken)
+        } catch {
+            errorMessage = error.localizedDescription
             showErrorAlert = true
         }
         isLoading = false
     }
     
-    func addToHistory(_ newItem: String) {
-        var history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
-        history.append(newItem)
-        UserDefaults.standard.set(history, forKey: "historyItems")
-    }
 }
 
 struct DocumentPicker: UIViewControllerRepresentable {

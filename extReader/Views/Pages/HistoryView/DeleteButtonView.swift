@@ -31,11 +31,6 @@ struct DeleteButtonView: View {
     }
     
     func deleteSession(_ sessionId: String) {
-        var history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
-        history.removeAll { $0 == sessionId }
-        UserDefaults.standard.set(history, forKey: "historyItems")
-        DispatchQueue.main.async {
-            
-        }
+        SessionHistoryService.shared.delete(sessionId)
     }
 }

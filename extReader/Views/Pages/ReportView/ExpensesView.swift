@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ExpensesView: View {
-    @State var groupedList: [GroupedExpense]
-    @State var allExpenses: [DetailedExpense]
+    let groupedList: [GroupedExpense]
+    let allExpenses: [DetailedExpense]
     
     var body: some View {
         ScrollView{
@@ -25,8 +25,8 @@ struct ExpensesView: View {
                         let expenses = allExpenses.filter { $0.expenseName == expense.expenseName }
                         
                         NavigationLink {
-                            if expense.instances == 1 {
-                                ExpenseDetailView(expense: expenses.first!)
+                            if expense.instances == 1, let single = expenses.first {
+                                ExpenseDetailView(expense: single)
                             } else {
                                 CategoryListView(category: expense.expenseName, expenses: expenses, total: expense.total)
                             }

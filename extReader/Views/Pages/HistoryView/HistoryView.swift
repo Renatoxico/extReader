@@ -8,9 +8,8 @@ import SwiftUI
 
 struct HistoryView: View {
     var onSuccess: (ExpenseResponse) -> Void
-    @State private var history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
+    @State private var history = SessionHistoryService.shared.allItems()
     @State private var isLoading = false
-    @State private var errorMessage: String? = nil
     @State private var showErrorAlert = false
 
     var body: some View {
@@ -49,7 +48,7 @@ struct HistoryView: View {
                     }
                 }
                 .onAppear {
-                    history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
+                    history = SessionHistoryService.shared.allItems()
                 }
                 .alert("Erro", isPresented: $showErrorAlert) {
                     Button("OK", role: .cancel) {}
@@ -76,7 +75,6 @@ struct HistoryView: View {
                 ExpenseService.shared.fetchExpenses(sessionId: sessionId)
             onSuccess(res)
         } catch{
-            errorMessage = error.localizedDescription
             showErrorAlert = true
             print("Deu Error: \(error.localizedDescription)")
         }

@@ -11,121 +11,180 @@ import Charts
 
 struct CategoryChartView: View {
     let report: ExpenseResponse
-    
+
+    @State private var rawAngleSelection: Double?
+    @State private var selectedCategory: TotalByCategory?
+
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
 
+    private func findCategory(for value: Double, in categories: [TotalByCategory]) -> TotalByCategory? {
+        var cumulative = 0.0
+        for cat in categories {
+            cumulative += cat.value
+            if value <= cumulative { return cat }
+        }
+        return nil
+    }
+
     var body: some View {
         let categories = report.ExpensesByCategory.sorted(by: { $0.value > $1.value })
         let totalExpenses = report.AllExpenses.reduce(0) { $0 + $1.value }
-        
+        let activeCategoryName: String? = rawAngleSelection.flatMap { findCategory(for: $0, in: categories)?.category }
+
         VStack(spacing: 24) {
+            // Header
             VStack(spacing: 4) {
-                Text("Despesas por Categoria")
-                    .font(.title3.bold())
-                    .foregroundColor(.primary)
-                    .padding(.horizontal, 4)
-                
+                HStack(spacing: 8) {
+                    Image(systemName: "chart.pie.fill")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                    Text("Despesas por Categoria")
+                        .font(.title3.bold())
+                        .foregroundColor(.primary)
+                }
                 Text("Resumo das categorias neste período")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            
-            ZStack {
-                VStack(spacing: 0) {
-                    Chart(categories, id: \.category) { item in
-                        let pct = item.value / totalExpenses * 100
-                        SectorMark(
-                            angle: .value("Total", item.value),
-                            innerRadius: .ratio(0.6),
-                            angularInset: 2
-                        ).annotation(position: .overlay) {
-                            if pct > 3{
-                                Text("\(String(format: "%.1f", pct))%")
-                                    .font(.caption)
-                                    .foregroundColor(.black)
-                            }
-                        }
-                        .foregroundStyle(Color.forCategory(item.category))
-                        .cornerRadius(5)
-                        .shadow(color: .white.opacity(0.08), radius: 4)
-                    }
-                    .scaledToFit()
-                    //.frame(width: 350, height: 320)
-                    .chartBackground { chartProxy in
-                        GeometryReader { geometry in
-                            if let anchor = chartProxy.plotFrame {
-                                let frame = geometry[anchor]
-                                NavigationLink {
-                                    CategoryListView(category: "Todas Despesas", expenses: report.AllExpenses, total: totalExpenses)
-                                } label: {
-                                    VStack(spacing: 4) {
-                                        Text("Total")
-                                            .font(.title3)
-                                            .foregroundColor(.secondary)
-                                        Text("R$ \(String(format: "%.2f", totalExpenses))")
-                                            .font(.title3.weight(.semibold))
-                                            .foregroundColor(.green)
-                                    }
-                                    .frame(width: 150, height: 150)
-                                    .contentShape(Circle())
-                                }
-                                .buttonStyle(.plain)
-                                .position(x: frame.midX, y: frame.midY)
-                            }
+            .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                // Donut Chart
+                Chart(categories, id: \.category) { item in
+                    let pct = item.value / totalExpenses * 100
+                    SectorMark(
+                        angle: .value("Total", item.value),
+                        innerRadius: .ratio(0.6),
+                        angularInset: 2
+                    )
+                    .annotation(position: .overlay) {
+                        if pct > 2 {
+                            Text("\(String(format: "%.1f", pct))%")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.black)
                         }
                     }
-                    .padding(.bottom)
-                                        
-                    // Legend
-                    LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
-                        ForEach(categories, id: \.category) { item in
+                    .foregroundStyle(Color.forCategory(item.category))
+                    .cornerRadius(5)
+                    .opacity(activeCategoryName == nil ? 1.0 : (activeCategoryName == item.category ? 1.0 : 0.4))
+                }
+                .scaledToFit()
+                .chartAngleSelection(value: $rawAngleSelection)
+                .chartBackground { chartProxy in
+                    GeometryReader { geometry in
+                        if let anchor = chartProxy.plotFrame {
+                            let frame = geometry[anchor]
                             NavigationLink {
-                                let categoryExpenses = report.AllExpenses.filter { $0.category == item.category }
-                                let totalByCategory = report.ExpensesByCategory.first(where: { $0.category == item.category })?.value ?? 0.00
-                                CategoryListView(category: item.category, expenses: categoryExpenses, total: totalByCategory)
+                                CategoryListView(
+                                    category: "Todas Despesas",
+                                    expenses: report.AllExpenses,
+                                    total: totalExpenses
+                                )
                             } label: {
-                                HStack(spacing: 6) {
-                                    Circle()
-                                        .fill(Color.forCategory(item.category))
-                                        .frame(width: 12, height: 12)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(item.category)
-                                            .font(.footnote.weight(.medium))
-                                            .foregroundColor(.primary)
-                                        Text("R$ \(String(format: "%.2f", item.value))")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
-                                    }
+                                VStack(spacing: 4) {
+                                    Text("Total")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                    Text("R$ \(String(format: "%.2f", totalExpenses))")
+                                        .font(.title3.weight(.semibold))
+                                        .foregroundColor(.green)
+                                    Text("Ver Tudo →")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
                                 }
-                                .padding(.vertical, 4)
+                                .frame(width: 150, height: 150)
+                                .contentShape(Circle())
                             }
                             .buttonStyle(.plain)
+                            .position(x: frame.midX, y: frame.midY)
                         }
                     }
-                    //.padding(.horizontal, 24)
-                    .padding(.bottom, 12)
                 }
+                .padding(.bottom)
+
+                // Legend
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+                    ForEach(categories, id: \.category) { item in
+                        let categoryExpenses = report.AllExpenses.filter { $0.category == item.category }
+                        let totalByCategory = report.ExpensesByCategory.first(where: { $0.category == item.category })?.value ?? 0.0
+                        NavigationLink {
+                            CategoryListView(category: item.category, expenses: categoryExpenses, total: totalByCategory)
+                        } label: {
+                            HStack(spacing: 8) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.forCategory(item.category).opacity(0.2))
+                                        .frame(width: 30, height: 30)
+                                    Image(systemName: String.iconName(forCategory: item.category))
+                                        .font(.system(size: 13))
+                                        .foregroundColor(Color.forCategory(item.category))
+                                }
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(item.category)
+                                        .font(.footnote.weight(.medium))
+                                        .foregroundColor(.primary)
+                                        .lineLimit(2)
+                                    Text("R$ \(String(format: "%.2f", item.value))")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundColor(Color(.tertiaryLabel))
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(.quaternarySystemFill))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 4)
+                .padding(.bottom, 12)
             }
-            .padding(.horizontal)
         }
-        //.padding(.horizontal)
+        .padding(.horizontal)
         .padding(.top)
         .padding(.bottom)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 3)
-                .padding(.horizontal,8)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        colors: [Color(.secondarySystemBackground), Color(.tertiarySystemBackground)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color(.separator).opacity(0.3), lineWidth: 0.5)
+                )
+                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                .padding(.horizontal, 8)
         )
+        .onChange(of: rawAngleSelection) { _, newValue in
+            guard let angle = newValue else { return }
+            selectedCategory = findCategory(for: angle, in: categories)
+            DispatchQueue.main.async { rawAngleSelection = nil }
+        }
+        .navigationDestination(item: $selectedCategory) { cat in
+            let categoryExpenses = report.AllExpenses.filter { $0.category == cat.category }
+            CategoryListView(category: cat.category, expenses: categoryExpenses, total: cat.value)
+        }
     }
-    
+
 }
 
 #Preview {
     let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
-    CategoryChartView(report: mock)
+    NavigationStack {
+        CategoryChartView(report: mock)
+    }
 }
-

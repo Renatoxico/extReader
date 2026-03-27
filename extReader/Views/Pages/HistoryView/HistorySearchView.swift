@@ -45,7 +45,6 @@ struct HistorySearchView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     )
                     .shadow(color: .green.opacity(0.4), radius: 10, y: 4)
-                    //.padding(.horizontal, 50)
                 }
                 .disabled(isLoading)
                 .padding()
@@ -67,7 +66,7 @@ struct HistorySearchView: View {
             let res = try await
                 ExpenseService.shared.fetchExpenses(sessionId: sessionId)
             onSuccess(res)
-            addToHistory(res.sessionToken)
+            SessionHistoryService.shared.add(res.sessionToken)
         } catch{
             print("Deu Error: \(error.localizedDescription)")
             showErrorAlert = true
@@ -75,9 +74,4 @@ struct HistorySearchView: View {
         isLoading = false
     }
     
-    func addToHistory(_ newItem: String) {
-        var history = UserDefaults.standard.stringArray(forKey: "historyItems") ?? []
-        history.append(newItem)
-        UserDefaults.standard.set(history, forKey: "historyItems")
-    }
 }

@@ -29,7 +29,7 @@ struct GroupedExpense: Codable, Identifiable {
     }
 }
 
-struct TotalByCategory: Codable, Identifiable {
+struct TotalByCategory: Codable, Identifiable, Hashable {
     let id = UUID()
     let category: String
     let value: Double

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HistoryHeaderView: View {
     var onSuccess: (ExpenseResponse) -> Void
-    @State var report: ExpenseResponse?
     var body: some View {
         VStack(spacing: 4) {
             Text("Histórico de Sessões")
