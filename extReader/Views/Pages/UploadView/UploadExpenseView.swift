@@ -16,7 +16,9 @@ struct UploadExpenseView: View {
     @State private var invalidFileName = ""
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    private let maxFileCount = 4
+    @State private var showPremiumAlert = false
+    private let maxFileCount = 6
+    private let maxFileSizeBytes = 512 * 1024
     
     var body: some View {
         ZStack {
@@ -87,10 +89,10 @@ struct UploadExpenseView: View {
                         .disabled(isLoading)
                     }
                 }
-                .alert("Invalid File", isPresented: $showAlert) {
+                .alert("Arquivo Inválido", isPresented: $showAlert) {
                     Button("OK", role: .cancel) {}
                 } message: {
-                    Text("'\(invalidFileName)' is not a PDF. Only PDF files are allowed.")
+                    Text("'\(invalidFileName)' não é um PDF. Apenas arquivos PDF são permitidos.")
                 }
                 
                 Spacer()
@@ -105,16 +107,21 @@ struct UploadExpenseView: View {
             if isLoading {
             Color.black.opacity(0.4) // dim background
             .ignoresSafeArea()
-            ProgressView("Loading...")
+            ProgressView("Carregando...")
                 .padding()
                 .cornerRadius(10)
             }
             Spacer()
         }
-        .alert("Error", isPresented: $showErrorAlert) {
+        .alert("Erro", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(errorMessage)
+        }
+        .alert("Premium necessário", isPresented: $showPremiumAlert) {
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Esta funcionalidade requer uma assinatura Premium.")
         }
     }
     
@@ -122,8 +129,15 @@ struct UploadExpenseView: View {
         for file in files {
             if file.pathExtension.lowercased() != "pdf" {
                 onInvalid(file)
-
-                return                         // exit early
+                return
+            }
+        }
+        for file in files {
+            if let size = try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+               size > maxFileSizeBytes {
+                errorMessage = "'\(file.lastPathComponent)' excede o limite de 512 KB."
+                showErrorAlert = true
+                return
             }
         }
         isLoading = true
@@ -131,6 +145,9 @@ struct UploadExpenseView: View {
             let res = try await ExpenseService.shared.processFiles(files)
             onSuccess(res)
             SessionHistoryService.shared.add(res.sessionToken)
+            fileSelector.selectedFiles.removeAll()
+        } catch ExpenseService.NetworkError.premiumRequired {
+            showPremiumAlert = true
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true

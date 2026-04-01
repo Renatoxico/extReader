@@ -108,9 +108,19 @@ class AuthService: ObservableObject {
             return
         }
         do {
-            var request = URLRequest(url: URL(string: "https://api.renatoxico.net/api/user/status")!)
+            guard let statusURL = URL(string: "https://api.renatoxico.net/api/user/status") else {
+                isPremium = false
+                return
+            }
+            var request = URLRequest(url: statusURL)
+            request.timeoutInterval = 30
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                isPremium = nil
+                return
+            }
             struct StatusResponse: Decodable { let isPremium: Bool }
             isPremium = try JSONDecoder().decode(StatusResponse.self, from: data).isPremium
         } catch {

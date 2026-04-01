@@ -11,11 +11,13 @@ struct HistoryView: View {
     @State private var history = SessionHistoryService.shared.allItems()
     @State private var isLoading = false
     @State private var showErrorAlert = false
+    @State private var exportedCSVURL: URL? = nil
+    @State private var showShareSheet = false
 
     var body: some View {
         ZStack {
             BackgroundView()
-            
+
             NavigationStack {
                 VStack(spacing: 0) {
                     HistoryHeaderView(onSuccess: onSuccess)
@@ -41,6 +43,14 @@ struct HistoryView: View {
                                 }
                                 .padding(.vertical, 8)
                                 .listRowBackground(Color.black.opacity(0.25))
+                                .swipeActions(edge: .leading) {
+                                    Button {
+                                        Task { await exportSession(item) }
+                                    } label: {
+                                        Label("Exportar", systemImage: "square.and.arrow.up")
+                                    }
+                                    .tint(.blue)
+                                }
                             }
                         }
                         .scrollContentBackground(.hidden)
@@ -55,11 +65,21 @@ struct HistoryView: View {
                 } message: {
                     Text("Houve um erro na comunicação com o servidor.")
                 }
+                .sheet(isPresented: $showShareSheet, onDismiss: {
+                    if let url = exportedCSVURL {
+                        try? FileManager.default.removeItem(at: url)
+                        exportedCSVURL = nil
+                    }
+                }) {
+                    if let url = exportedCSVURL {
+                        ShareSheet(activityItems: [url])
+                    }
+                }
             }
-            
+
             if isLoading {
                 Color.black.opacity(0.4).ignoresSafeArea()
-                ProgressView("Carregando...")	
+                ProgressView("Carregando...")
                     .padding()
                     .background(Color.black.opacity(0.7))
                     .foregroundColor(.green)
@@ -67,20 +87,32 @@ struct HistoryView: View {
             }
         }
     }
-    
+
     func getSessionData(_ sessionId: String) async {
         isLoading = true
         do {
-            let res = try await
-                ExpenseService.shared.fetchExpenses(sessionId: sessionId)
+            let res = try await ExpenseService.shared.fetchExpenses(sessionId: sessionId)
             onSuccess(res)
-        } catch{
+        } catch {
             showErrorAlert = true
-            print("Deu Error: \(error.localizedDescription)")
         }
         isLoading = false
     }
-        
+
+    func exportSession(_ sessionId: String) async {
+        isLoading = true
+        do {
+            let csvData = try await ExpenseService.shared.exportCSV(sessionId: sessionId)
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("despesas_\(sessionId).csv")
+            try csvData.write(to: tempURL)
+            exportedCSVURL = tempURL
+            showShareSheet = true
+        } catch {
+            showErrorAlert = true
+        }
+        isLoading = false
+    }
 }
 
 #Preview {

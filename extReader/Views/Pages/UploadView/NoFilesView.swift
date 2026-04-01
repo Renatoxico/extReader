@@ -14,11 +14,11 @@ struct NoFilesView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.gray)
             
-            Text("No files selected")
+            Text("Nenhum arquivo selecionado")
                 .font(.headline)
                 .foregroundColor(.secondary)
-            
-            Text("Tap the button above to select PDF files")
+
+            Text("Toque para selecionar arquivos PDF")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

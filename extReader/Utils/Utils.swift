@@ -84,6 +84,10 @@ extension Bundle {
         }
 
         let decoder = JSONDecoder()
-        return try! decoder.decode(T.self, from: data)
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            fatalError("❌ Failed to decode \(file): \(error)")
+        }
     }
 }

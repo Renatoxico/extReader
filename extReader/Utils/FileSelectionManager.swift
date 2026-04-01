@@ -20,7 +20,11 @@ class FileSelectionManager: ObservableObject {
             return
         }
         
-        let file = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent)
+        guard let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            print("Documents directory not found")
+            return
+        }
+        let file = documentsDir.appendingPathComponent(url.lastPathComponent)
         
         do {
             try FileManager.default.copyItem(at: url, to: file)

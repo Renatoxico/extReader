@@ -11,55 +11,38 @@ struct ExpenseResponse: Codable {
     let SmartGroupExpenselist: [GroupedExpense]
     let AllExpenses: [DetailedExpense]
     let sessionToken: String
-    let BiggestSingularExpense: DetailedExpense
+    let BiggestSingularExpense: DetailedExpense?
     let NotableDays: [NotableDay]
     let ExpensesByCategory: [TotalByCategory]
 }
 
-struct GroupedExpense: Codable, Identifiable {
-    let id = UUID()
+struct GroupedExpense: Codable, Identifiable, Hashable {
+    var id: String { expenseName }
     let expenseName: String
     let total: Double
     let instances: Int
     let category: String
-    
-    // Required for Codable to ignore the id property
-    enum CodingKeys: CodingKey {
-        case expenseName, total, instances, category
-    }
 }
 
 struct TotalByCategory: Codable, Identifiable, Hashable {
-    let id = UUID()
+    var id: String { category }
     let category: String
     let value: Double
-    
-    enum CodingKeys: CodingKey {
-        case category, value
-    }
 }
 
 struct NotableDay: Codable, Identifiable {
-    let id = UUID()
+    var id: String { date }
     let date: String
     let total: Double
     let transactions: Int
-    
-    enum CodingKeys: CodingKey {
-        case date, total, transactions
-    }
 }
 
-struct DetailedExpense: Codable, Identifiable {
-    let id = UUID()
+struct DetailedExpense: Codable, Identifiable, Hashable {
+    var id: String { "\(expenseName)-\(date)-\(value)" }
     let expenseName: String
     let value: Double
     let date: String
     let category: String?
-    
-    enum CodingKeys: CodingKey {
-        case expenseName, value, date, category
-    }
     
     var formattedDate: Date {
         let formatter = DateFormatter()

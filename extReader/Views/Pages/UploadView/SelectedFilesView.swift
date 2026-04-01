@@ -12,7 +12,7 @@ struct SelectedFilesView: View {
     var body: some View {
         if !selectedFiles.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Selected Files:")
+                Text("Arquivos Selecionados:")
                     .font(.headline)
                     .padding(.bottom, 5)
                 

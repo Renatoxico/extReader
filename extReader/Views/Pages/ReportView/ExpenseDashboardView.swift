@@ -25,10 +25,21 @@ struct ExpenseDashboardView: View {
     }
 
     var body: some View {
-        guard let busyDay, let expensiveDay, let commonExpense else {
-            return AnyView(EmptyView())
+        guard let busyDay, let expensiveDay, let commonExpense,
+              let biggestExpense = report.BiggestSingularExpense else {
+            return AnyView(
+                VStack(spacing: 16) {
+                    Image(systemName: "chart.bar.xaxis")
+                        .font(.system(size: 40))
+                        .foregroundColor(.secondary)
+                    Text("Dados insuficientes para exibir destaques")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            )
         }
-        let biggestExpense = report.BiggestSingularExpense
         let topExpenses = Array(report.SmartGroupExpenselist.sorted { $0.total > $1.total }.prefix(3))
         let comprasRecorrentes = report.AllExpenses.filter { $0.expenseName == commonExpense.expenseName }
         let busyDayExpenses = report.AllExpenses.filter { $0.date == busyDay.date }
