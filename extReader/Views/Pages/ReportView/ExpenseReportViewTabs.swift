@@ -38,7 +38,7 @@ struct ExpenseReportViewTabs: View {
                 }
             }
             TabView {
-                CategoryChartView(report: report)
+                CategoryChartViewDG(report: report)
 
                 if((busiestDay != nil) && (expensiveDay != nil) && (recurringExpense != nil))
                 {
