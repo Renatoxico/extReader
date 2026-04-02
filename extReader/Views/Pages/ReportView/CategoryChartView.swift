@@ -12,28 +12,14 @@ import Charts
 struct CategoryChartView: View {
     let report: ExpenseResponse
 
-    @State private var rawAngleSelection: Double?
-    @State private var selectedCategory: TotalByCategory?
-
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
 
-    private func findCategory(for value: Double, in categories: [TotalByCategory]) -> TotalByCategory? {
-        var cumulative = 0.0
-        for cat in categories {
-            cumulative += cat.value
-            if value <= cumulative { return cat }
-        }
-        return nil
-    }
-
     var body: some View {
         let categories = report.ExpensesByCategory.sorted(by: { $0.value > $1.value })
         let totalExpenses = report.AllExpenses.reduce(0) { $0 + $1.value }
-        let activeCategoryName: String? = rawAngleSelection.flatMap { findCategory(for: $0, in: categories)?.category }
-
         VStack(spacing: 24) {
             // Header
             VStack(spacing: 4) {
@@ -69,10 +55,8 @@ struct CategoryChartView: View {
                     }
                     .foregroundStyle(Color.forCategory(item.category))
                     .cornerRadius(5)
-                    .opacity(activeCategoryName == nil ? 1.0 : (activeCategoryName == item.category ? 1.0 : 0.4))
                 }
-                .scaledToFit()
-                .chartAngleSelection(value: $rawAngleSelection)
+                .frame(height: 330)
                 .chartBackground { chartProxy in
                     GeometryReader { geometry in
                         if let anchor = chartProxy.plotFrame {
@@ -126,7 +110,8 @@ struct CategoryChartView: View {
                                     Text(item.category)
                                         .font(.footnote.weight(.medium))
                                         .foregroundColor(.primary)
-                                        .lineLimit(2)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
                                     Text("R$ \(String(format: "%.2f", item.value))")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
@@ -169,15 +154,6 @@ struct CategoryChartView: View {
                 .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
                 .padding(.horizontal, 8)
         )
-        .onChange(of: rawAngleSelection) { _, newValue in
-            guard let angle = newValue else { return }
-            selectedCategory = findCategory(for: angle, in: categories)
-            DispatchQueue.main.async { rawAngleSelection = nil }
-        }
-        .navigationDestination(item: $selectedCategory) { cat in
-            let categoryExpenses = report.AllExpenses.filter { $0.category == cat.category }
-            CategoryListView(category: cat.category, expenses: categoryExpenses, total: cat.value)
-        }
     }
 
 }

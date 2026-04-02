@@ -49,7 +49,6 @@ struct ExpenseReportViewTabs: View {
             }
             .tabViewStyle(.page)
             .indexViewStyle(.page)
-            .ignoresSafeArea()
             .frame(maxWidth: .infinity)
         }
         .toolbar {

@@ -103,7 +103,7 @@ struct ExpenseDashboardView: View {
             TopExpensesView(groupedList: topExpenses, allExpenses: report.AllExpenses)
                 .padding(.top, 4)
         }
-        .padding(.top)
+        .padding(.top, 24)
         .padding(.bottom, 20)
         .padding(.horizontal, 8)
         )
