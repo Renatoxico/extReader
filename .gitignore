@@ -1,5 +1,7 @@
 # Secrets — never commit real credentials
 Secrets.xcconfig
+GoogleService-Info.plist
+.claude/
 
 # Xcode
 *.xcuserdata/

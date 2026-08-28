@@ -12,7 +12,7 @@ import GoogleSignIn
 import UIKit
 
 struct AuthenticatedUser: Decodable {
-    let localUserId: Int
+    let localUserId: Int64
     let uid: String
     let email: String?
     let name: String?
@@ -26,6 +26,7 @@ class AuthService: ObservableObject {
     static let shared = AuthService()
 
     @Published var isAuthenticated = false
+    @Published var isAuthReady = false
     @Published var isPremium: Bool? = nil
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
@@ -51,15 +52,14 @@ class AuthService: ObservableObject {
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor in
                 guard let self else { return }
-                isAuthenticated = firebaseUser != nil
 
                 if firebaseUser == nil {
-                    user = nil
-                    isPremium = nil
+                    self.clearSession()
+                    self.isAuthReady = true
                     return
                 }
 
-                await checkPremiumStatus()
+                await self.establishBackendSession()
             }
         }
     }
@@ -69,12 +69,14 @@ class AuthService: ObservableObject {
     func signIn(email: String, password: String) async {
         await runAuthAction {
             _ = try await Auth.auth().signIn(withEmail: email, password: password)
+            await self.establishBackendSession()
         }
     }
 
     func signUp(email: String, password: String) async {
         await runAuthAction {
             _ = try await Auth.auth().createUser(withEmail: email, password: password)
+            await self.establishBackendSession()
         }
     }
 
@@ -84,7 +86,7 @@ class AuthService: ObservableObject {
                 throw AuthServiceError.missingGoogleClientID
             }
 
-            guard let presentingViewController = await UIApplication.shared.activeRootViewController else {
+            guard let presentingViewController = UIApplication.shared.activeRootViewController else {
                 throw AuthServiceError.missingPresentingViewController
             }
 
@@ -100,6 +102,7 @@ class AuthService: ObservableObject {
                 accessToken: result.user.accessToken.tokenString
             )
             _ = try await Auth.auth().signIn(with: credential)
+            await self.establishBackendSession()
         }
     }
 
@@ -109,6 +112,7 @@ class AuthService: ObservableObject {
         do {
             GIDSignIn.sharedInstance.signOut()
             try Auth.auth().signOut()
+            clearSession()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -118,29 +122,43 @@ class AuthService: ObservableObject {
         GIDSignIn.sharedInstance.handle(url)
     }
 
-    private func runAuthAction(_ action: @escaping () async throws -> Void) async {
+    private func runAuthAction(_ action: @escaping @MainActor () async throws -> Void) async {
         isLoading = true
         errorMessage = nil
 
         do {
             try await action()
         } catch {
+            clearSession()
             errorMessage = authErrorMessage(for: error)
         }
 
         isLoading = false
+        isAuthReady = true
     }
 
     // MARK: - Backend User
 
     func checkPremiumStatus() async {
+        await establishBackendSession()
+    }
+
+    private func establishBackendSession() async {
         do {
             user = try await fetchAuthenticatedUser()
+            isAuthenticated = true
             isPremium = false
         } catch {
-            user = nil
-            isPremium = false
+            clearSession()
+            errorMessage = authErrorMessage(for: error)
         }
+        isAuthReady = true
+    }
+
+    private func clearSession() {
+        isAuthenticated = false
+        user = nil
+        isPremium = nil
     }
 
     func fetchAuthenticatedUser() async throws -> AuthenticatedUser {
@@ -247,35 +265,7 @@ private enum AuthServiceError: LocalizedError {
 private enum FirebaseConfiguration {
     static func configureIfNeeded() {
         guard FirebaseApp.app() == nil else { return }
-
-        let options = FirebaseOptions(
-            googleAppID: requiredValue(for: "FirebaseAppID"),
-            gcmSenderID: requiredValue(for: "FirebaseMessagingSenderID")
-        )
-        options.apiKey = requiredValue(for: "FirebaseAPIKey")
-        options.authDomain = requiredValue(for: "FirebaseAuthDomain")
-        options.projectID = requiredValue(for: "FirebaseProjectID")
-        options.storageBucket = optionalValue(for: "FirebaseStorageBucket")
-        options.clientID = optionalValue(for: "FirebaseClientID")
-
-        FirebaseApp.configure(options: options)
-    }
-
-    private static func requiredValue(for key: String) -> String {
-        guard let value = optionalValue(for: key) else {
-            fatalError("\(key) is not configured. Add Firebase values to Secrets.xcconfig.")
-        }
-
-        return value
-    }
-
-    private static func optionalValue(for key: String) -> String? {
-        guard let value = Bundle.main.infoDictionary?[key] as? String,
-              !value.isEmpty, !value.hasPrefix("$("), !value.hasPrefix("your_") else {
-            return nil
-        }
-
-        return value
+        FirebaseApp.configure()
     }
 }
 

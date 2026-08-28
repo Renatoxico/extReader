@@ -144,7 +144,6 @@ struct UploadExpenseView: View {
         do {
             let res = try await ExpenseService.shared.processFiles(files)
             onSuccess(res)
-            SessionHistoryService.shared.add(res.sessionToken)
             fileSelector.selectedFiles.removeAll()
         } catch ExpenseService.NetworkError.premiumRequired {
             showPremiumAlert = true
@@ -197,6 +196,5 @@ struct DocumentPicker: UIViewControllerRepresentable {
         }
     }
 }
-
 
 

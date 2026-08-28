@@ -15,7 +15,14 @@ struct extReaderApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if auth.isAuthenticated {
+                if !auth.isAuthReady {
+                    ZStack {
+                        BackgroundView()
+                        ProgressView("Verificando sessão...")
+                            .tint(.green)
+                            .foregroundColor(.white)
+                    }
+                } else if auth.isAuthenticated {
                     HomeView()
                         .environmentObject(fileSelectionManager)
                 } else {
@@ -25,9 +32,10 @@ struct extReaderApp: App {
             .environment(\.colorScheme, .dark)
             .environmentObject(auth)
             .onOpenURL { url in
-                // Route auth-callback URLs to Supabase; everything else is a file
-                if url.scheme == "extreader" {
-                    auth.handleURL(url)
+                if auth.handleURL(url) {
+                    return
+                } else if url.scheme == "extreader" {
+                    return
                 } else {
                     fileSelectionManager.addFile(url)
                 }

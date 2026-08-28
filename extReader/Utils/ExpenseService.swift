@@ -14,18 +14,18 @@ struct ServerErrorResponse: Decodable {
 }
 
 class ExpenseService {
-    private let baseUrl = "https://api.renatoxico.net/extract/"
+    private let baseUrl = "https://api.renatoxico.net"
 
     static let shared = ExpenseService()
     private init() {}
 
-    private func authHeader() async -> String? {
-        guard let token = try? await AuthService.shared.accessToken() else { return nil }
+    private func authHeader() async throws -> String {
+        let token = try await AuthService.shared.accessToken()
         return "Bearer \(token)"
     }
 
-    func fetchExpenses(sessionId: String) async throws -> ExpenseResponse {
-        let urlString = baseUrl + "summary/" + sessionId
+    func fetchReports() async throws -> [ReportSummary] {
+        let urlString = baseUrl + "/v2/extract/reports"
 
         guard let url = URL(string: urlString) else {
             throw NetworkError.invalidURL
@@ -33,9 +33,39 @@ class ExpenseService {
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
-        if let auth = await authHeader() {
-            request.setValue(auth, forHTTPHeaderField: "Authorization")
+        request.setValue(try await authHeader(), forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
         }
+
+        guard httpResponse.statusCode == 200 else {
+            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
+               let message = serverError.message {
+                throw NetworkError.serverError(message)
+            }
+            throw NetworkError.invalidResponse
+        }
+
+        do {
+            return try JSONDecoder().decode([ReportSummary].self, from: data)
+        } catch {
+            throw NetworkError.decodingFailed(error.localizedDescription)
+        }
+    }
+
+    func fetchExpenses(sessionId: String) async throws -> ExpenseResponse {
+        let reportId = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathSegmentAllowed) ?? sessionId
+        let urlString = baseUrl + "/v2/extract/summary/" + reportId
+
+        guard let url = URL(string: urlString) else {
+            throw NetworkError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 30
+        request.setValue(try await authHeader(), forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -64,16 +94,14 @@ class ExpenseService {
 
     func processFiles(_ files: [URL]) async throws -> ExpenseResponse {
         let boundary = UUID().uuidString
-        guard let baseURL = URL(string: baseUrl) else {
+        guard let baseURL = URL(string: baseUrl + "/v2/extract") else {
             throw NetworkError.invalidURL
         }
         var request = URLRequest(url: baseURL)
         request.httpMethod = "POST"
         request.timeoutInterval = 30
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        if let auth = await authHeader() {
-            request.setValue(auth, forHTTPHeaderField: "Authorization")
-        }
+        request.setValue(try await authHeader(), forHTTPHeaderField: "Authorization")
 
         var body = Data()
 
@@ -122,15 +150,14 @@ class ExpenseService {
     }
 
     func exportCSV(sessionId: String) async throws -> Data {
-        let urlString = baseUrl + "export/" + sessionId
+        let reportId = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathSegmentAllowed) ?? sessionId
+        let urlString = baseUrl + "/v2/extract/export/" + reportId
         guard let url = URL(string: urlString) else {
             throw NetworkError.invalidURL
         }
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
-        if let auth = await authHeader() {
-            request.setValue(auth, forHTTPHeaderField: "Authorization")
-        }
+        request.setValue(try await authHeader(), forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -173,6 +200,14 @@ class ExpenseService {
             }
         }
     }
+}
+
+private extension CharacterSet {
+    static let urlPathSegmentAllowed: CharacterSet = {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/?#[]@!$&'()*+,;=")
+        return allowed
+    }()
 }
 
 private extension Data {

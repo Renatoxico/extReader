@@ -8,20 +8,22 @@ import SwiftUI
 
 struct NoHistoryView: View {
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 50))
-                .foregroundColor(.green.opacity(0.7))
-            Text("Nenhum histórico ainda")
+        VStack(alignment: .leading, spacing: 12) {
+            Text("01")
+                .font(.system(.title2, design: .monospaced).weight(.bold))
+                .foregroundColor(.green)
+            Text("Seus relatórios processados aparecerão aqui.")
+                .font(.subheadline)
                 .foregroundColor(.secondary)
-                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding()
-//        .frame(maxWidth: .infinity, minHeight: 150)
-//        .background(
-//            RoundedRectangle(cornerRadius: 12)
-//                .fill(Color(.systemGray6))
-//        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color.white.opacity(0.10), style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+        )
+        .padding(16)
     }
 }
 

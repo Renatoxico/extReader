@@ -8,11 +8,12 @@ import SwiftUI
 
 struct HistoryView: View {
     var onSuccess: (ExpenseResponse) -> Void
-    @State private var history = SessionHistoryService.shared.allItems()
-    @State private var isLoading = false
+    @State private var reports: [ReportSummary] = []
+    @State private var isLoadingReports = false
+    @State private var loadingReportId: String?
     @State private var showErrorAlert = false
-    @State private var exportedCSVURL: URL? = nil
-    @State private var showShareSheet = false
+    @State private var loadErrorMessage: String?
+    @State private var errorMessage = "Houve um erro na comunicação com o servidor."
 
     var body: some View {
         ZStack {
@@ -20,64 +21,57 @@ struct HistoryView: View {
 
             NavigationStack {
                 VStack(spacing: 0) {
-                    HistoryHeaderView(onSuccess: onSuccess)
-                    if history.isEmpty {
+                    HistoryHeaderView()
+
+                    if isLoadingReports && reports.isEmpty {
                         Spacer()
+                        ProgressView("Carregando histórico...")
+                            .tint(.green)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    } else if let loadErrorMessage, reports.isEmpty {
+                        HistoryErrorView(message: loadErrorMessage) {
+                            Task { await loadReports() }
+                        }
+                        Spacer()
+                    } else if reports.isEmpty {
                         NoHistoryView()
                         Spacer()
-                        Spacer()
                     } else {
-                        List {
-                            ForEach(history.reversed(), id: \.self) { item in
-                                HStack {
-                                    HistoryItemView(sessionId: item)
-                                        .onTapGesture {
-                                            Task {
-                                                isLoading = true
-                                                await getSessionData(item)
-                                                isLoading = false
-                                            }
-                                        }
-                                    Spacer()
-                                    DeleteButtonView(sessionId: item)
-                                }
-                                .padding(.vertical, 8)
-                                .listRowBackground(Color.black.opacity(0.25))
-                                .swipeActions(edge: .leading) {
+                        ScrollView {
+                            LazyVStack(spacing: 8) {
+                                ForEach(reports) { report in
                                     Button {
-                                        Task { await exportSession(item) }
+                                        Task { await getReportData(report.reportId) }
                                     } label: {
-                                        Label("Exportar", systemImage: "square.and.arrow.up")
+                                        HistoryItemView(
+                                            report: report,
+                                            isLoading: loadingReportId == report.reportId
+                                        )
                                     }
-                                    .tint(.blue)
+                                    .buttonStyle(.plain)
+                                    .disabled(loadingReportId != nil)
                                 }
                             }
+                            .padding(12)
                         }
-                        .scrollContentBackground(.hidden)
-                        .listStyle(.plain)
+                        .background(Color(red: 17/255, green: 20/255, blue: 26/255))
+                        .refreshable {
+                            await loadReports()
+                        }
                     }
                 }
                 .onAppear {
-                    history = SessionHistoryService.shared.allItems()
+                    Task { await loadReports() }
                 }
                 .alert("Erro", isPresented: $showErrorAlert) {
                     Button("OK", role: .cancel) {}
                 } message: {
-                    Text("Houve um erro na comunicação com o servidor.")
-                }
-                .sheet(isPresented: $showShareSheet, onDismiss: {
-                    if let url = exportedCSVURL {
-                        try? FileManager.default.removeItem(at: url)
-                        exportedCSVURL = nil
-                    }
-                }) {
-                    if let url = exportedCSVURL {
-                        ShareSheet(activityItems: [url])
-                    }
+                    Text(errorMessage)
                 }
             }
 
-            if isLoading {
+            if loadingReportId != nil {
                 Color.black.opacity(0.4).ignoresSafeArea()
                 ProgressView("Carregando...")
                     .padding()
@@ -88,30 +82,57 @@ struct HistoryView: View {
         }
     }
 
-    func getSessionData(_ sessionId: String) async {
-        isLoading = true
+    func loadReports() async {
+        guard !isLoadingReports else { return }
+
+        isLoadingReports = true
         do {
-            let res = try await ExpenseService.shared.fetchExpenses(sessionId: sessionId)
-            onSuccess(res)
+            reports = try await ExpenseService.shared.fetchReports()
+            loadErrorMessage = nil
         } catch {
-            showErrorAlert = true
+            loadErrorMessage = error.localizedDescription
         }
-        isLoading = false
+        isLoadingReports = false
     }
 
-    func exportSession(_ sessionId: String) async {
-        isLoading = true
+    func getReportData(_ reportId: String) async {
+        loadingReportId = reportId
         do {
-            let csvData = try await ExpenseService.shared.exportCSV(sessionId: sessionId)
-            let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("despesas_\(sessionId).csv")
-            try csvData.write(to: tempURL)
-            exportedCSVURL = tempURL
-            showShareSheet = true
+            let res = try await ExpenseService.shared.fetchExpenses(sessionId: reportId)
+            onSuccess(res)
         } catch {
+            errorMessage = error.localizedDescription
             showErrorAlert = true
         }
-        isLoading = false
+        loadingReportId = nil
+    }
+}
+
+private struct HistoryErrorView: View {
+    let message: String
+    let onRetry: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(message)
+                .font(.subheadline)
+                .foregroundColor(.red.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button(action: onRetry) {
+                Text("Tentar novamente")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.green)
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color.white.opacity(0.10), style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+        )
+        .padding(16)
     }
 }
 

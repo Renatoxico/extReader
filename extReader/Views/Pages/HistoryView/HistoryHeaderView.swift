@@ -8,20 +8,24 @@
 import SwiftUI
 
 struct HistoryHeaderView: View {
-    var onSuccess: (ExpenseResponse) -> Void
     var body: some View {
-        VStack(spacing: 4) {
-            Text("Histórico de Sessões")
-                .font(.title2.weight(.semibold))
-                .foregroundColor(.green)
-            Text("Pesquise ou consulte sessões anteriores")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            HistorySearchView(onSuccess: onSuccess)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Sua biblioteca")
+                    .font(.caption2.weight(.bold))
+                    .textCase(.uppercase)
+                    .foregroundColor(.green)
+                Text("Relatórios")
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.primary)
+            }
+
+            Spacer()
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, 18)
         .padding(.vertical, 20)
-        .background(Color.black.opacity(0.4))
-        .overlay(Divider().background(Color.green.opacity(0.3)), alignment: .bottom)
+        .background(Color(red: 17/255, green: 20/255, blue: 26/255))
+        .overlay(Divider().background(Color.white.opacity(0.06)), alignment: .bottom)
     }
 }
