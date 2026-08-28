@@ -5,8 +5,20 @@
 //  Created by Renato Dias on 26/03/26.
 //
 
+import FirebaseAuth
+import FirebaseCore
 import Foundation
-import Supabase
+import GoogleSignIn
+import UIKit
+
+struct AuthenticatedUser: Decodable {
+    let localUserId: Int
+    let uid: String
+    let email: String?
+    let name: String?
+    let picture: String?
+    let emailVerified: Bool
+}
 
 @MainActor
 class AuthService: ObservableObject {
@@ -14,37 +26,40 @@ class AuthService: ObservableObject {
     static let shared = AuthService()
 
     @Published var isAuthenticated = false
-    @Published var isPremium: Bool? = nil   // nil = not yet checked
+    @Published var isPremium: Bool? = nil
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    @Published var user: AuthenticatedUser? = nil
 
-    let client = SupabaseClient(
-        supabaseURL: URL(string: SupabaseConfig.url)!,
-        supabaseKey: SupabaseConfig.anonKey
-    )
+    private let apiBaseURL = URL(string: "https://api.renatoxico.net")!
+    private var authStateHandle: AuthStateDidChangeListenerHandle?
 
     private init() {
-        Task { await startAuthListener() }
+        FirebaseConfiguration.configureIfNeeded()
+        startAuthListener()
+    }
+
+    deinit {
+        if let authStateHandle {
+            Auth.auth().removeStateDidChangeListener(authStateHandle)
+        }
     }
 
     // MARK: - Auth State Listener
 
-    private func startAuthListener() async {
-        for await (event, session) in await client.auth.authStateChanges {
-            switch event {
-            case .initialSession:
-                isAuthenticated = session != nil
-                if session != nil { await checkPremiumStatus() }
-            case .signedIn:
-                isAuthenticated = true
+    private func startAuthListener() {
+        authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, firebaseUser in
+            Task { @MainActor in
+                guard let self else { return }
+                isAuthenticated = firebaseUser != nil
+
+                if firebaseUser == nil {
+                    user = nil
+                    isPremium = nil
+                    return
+                }
+
                 await checkPremiumStatus()
-            case .signedOut, .userDeleted:
-                isAuthenticated = false
-                isPremium = nil
-            case .tokenRefreshed:
-                break
-            default:
-                break
             }
         }
     }
@@ -52,85 +67,245 @@ class AuthService: ObservableObject {
     // MARK: - Auth Actions
 
     func signIn(email: String, password: String) async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            try await client.auth.signIn(email: email, password: password)
-        } catch {
-            errorMessage = error.localizedDescription
+        await runAuthAction {
+            _ = try await Auth.auth().signIn(withEmail: email, password: password)
         }
-        isLoading = false
     }
 
     func signUp(email: String, password: String) async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            try await client.auth.signUp(email: email, password: password)
-        } catch {
-            errorMessage = error.localizedDescription
+        await runAuthAction {
+            _ = try await Auth.auth().createUser(withEmail: email, password: password)
         }
-        isLoading = false
     }
 
     func signInWithGoogle() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            try await client.auth.signInWithOAuth(
-                provider: .google,
-                redirectTo: URL(string: "extreader://auth-callback")
+        await runAuthAction {
+            guard let clientID = FirebaseApp.app()?.options.clientID, !clientID.isEmpty else {
+                throw AuthServiceError.missingGoogleClientID
+            }
+
+            guard let presentingViewController = await UIApplication.shared.activeRootViewController else {
+                throw AuthServiceError.missingPresentingViewController
+            }
+
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController)
+
+            guard let idToken = result.user.idToken?.tokenString else {
+                throw AuthServiceError.missingGoogleIDToken
+            }
+
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: idToken,
+                accessToken: result.user.accessToken.tokenString
             )
-        } catch {
-            errorMessage = error.localizedDescription
+            _ = try await Auth.auth().signIn(with: credential)
         }
-        isLoading = false
     }
 
     func signOut() async {
+        errorMessage = nil
+
         do {
-            try await client.auth.signOut()
+            GIDSignIn.sharedInstance.signOut()
+            try Auth.auth().signOut()
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    /// Passes an incoming deep-link URL to the Supabase SDK (OAuth callback).
-    func handleURL(_ url: URL) {
-        Task { await client.handle(url) }
+    func handleURL(_ url: URL) -> Bool {
+        GIDSignIn.sharedInstance.handle(url)
     }
 
-    // MARK: - Premium Status
+    private func runAuthAction(_ action: @escaping () async throws -> Void) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            try await action()
+        } catch {
+            errorMessage = authErrorMessage(for: error)
+        }
+
+        isLoading = false
+    }
+
+    // MARK: - Backend User
 
     func checkPremiumStatus() async {
-        guard let token = try? await client.auth.session.accessToken else {
-            isPremium = false
-            return
-        }
         do {
-            guard let statusURL = URL(string: "https://api.renatoxico.net/api/user/status") else {
-                isPremium = false
-                return
-            }
-            var request = URLRequest(url: statusURL)
-            request.timeoutInterval = 30
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                isPremium = nil
-                return
-            }
-            struct StatusResponse: Decodable { let isPremium: Bool }
-            isPremium = try JSONDecoder().decode(StatusResponse.self, from: data).isPremium
+            user = try await fetchAuthenticatedUser()
+            isPremium = false
         } catch {
+            user = nil
             isPremium = false
         }
+    }
+
+    func fetchAuthenticatedUser() async throws -> AuthenticatedUser {
+        let token = try await accessToken()
+        let url = apiBaseURL.appending(path: "/api/auth/me")
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 30
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw AuthServiceError.invalidResponse
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
+               let message = serverError.message {
+                throw AuthServiceError.serverError(message)
+            }
+
+            throw AuthServiceError.invalidResponse
+        }
+
+        return try JSONDecoder().decode(AuthenticatedUser.self, from: data)
     }
 
     // MARK: - Token Access (for ExpenseService)
 
     func accessToken() async throws -> String {
-        try await client.auth.session.accessToken
+        guard let currentUser = Auth.auth().currentUser else {
+            throw AuthServiceError.notAuthenticated
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            currentUser.getIDToken { token, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                guard let token, !token.isEmpty else {
+                    continuation.resume(throwing: AuthServiceError.missingIDToken)
+                    return
+                }
+
+                continuation.resume(returning: token)
+            }
+        }
+    }
+
+    private func authErrorMessage(for error: Error) -> String {
+        if let authError = error as? AuthServiceError {
+            return authError.localizedDescription
+        }
+
+        let nsError = error as NSError
+        switch AuthErrorCode(rawValue: nsError.code) {
+        case .invalidEmail:
+            return "Email inválido."
+        case .wrongPassword, .invalidCredential:
+            return "Email ou senha inválidos."
+        case .emailAlreadyInUse:
+            return "Este email já está em uso."
+        case .weakPassword:
+            return "A senha precisa ser mais forte."
+        case .networkError:
+            return "Não foi possível conectar ao serviço de autenticação."
+        default:
+            return error.localizedDescription
+        }
+    }
+}
+
+private enum AuthServiceError: LocalizedError {
+    case invalidResponse
+    case missingGoogleClientID
+    case missingGoogleIDToken
+    case missingIDToken
+    case missingPresentingViewController
+    case notAuthenticated
+    case serverError(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidResponse:
+            return "Resposta inválida do servidor."
+        case .missingGoogleClientID:
+            return "FirebaseClientID não está configurado."
+        case .missingGoogleIDToken:
+            return "O Google não retornou um token de autenticação."
+        case .missingIDToken:
+            return "O Firebase não retornou um token de autenticação."
+        case .missingPresentingViewController:
+            return "Não foi possível abrir o login do Google."
+        case .notAuthenticated:
+            return "Faça login para continuar."
+        case .serverError(let message):
+            return message
+        }
+    }
+}
+
+private enum FirebaseConfiguration {
+    static func configureIfNeeded() {
+        guard FirebaseApp.app() == nil else { return }
+
+        let options = FirebaseOptions(
+            googleAppID: requiredValue(for: "FirebaseAppID"),
+            gcmSenderID: requiredValue(for: "FirebaseMessagingSenderID")
+        )
+        options.apiKey = requiredValue(for: "FirebaseAPIKey")
+        options.authDomain = requiredValue(for: "FirebaseAuthDomain")
+        options.projectID = requiredValue(for: "FirebaseProjectID")
+        options.storageBucket = optionalValue(for: "FirebaseStorageBucket")
+        options.clientID = optionalValue(for: "FirebaseClientID")
+
+        FirebaseApp.configure(options: options)
+    }
+
+    private static func requiredValue(for key: String) -> String {
+        guard let value = optionalValue(for: key) else {
+            fatalError("\(key) is not configured. Add Firebase values to Secrets.xcconfig.")
+        }
+
+        return value
+    }
+
+    private static func optionalValue(for key: String) -> String? {
+        guard let value = Bundle.main.infoDictionary?[key] as? String,
+              !value.isEmpty, !value.hasPrefix("$("), !value.hasPrefix("your_") else {
+            return nil
+        }
+
+        return value
+    }
+}
+
+private extension UIApplication {
+    var activeRootViewController: UIViewController? {
+        connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0.isKeyWindow }?
+            .rootViewController?
+            .topMostViewController
+    }
+}
+
+private extension UIViewController {
+    var topMostViewController: UIViewController {
+        if let presentedViewController {
+            return presentedViewController.topMostViewController
+        }
+
+        if let navigationController = self as? UINavigationController,
+           let visibleViewController = navigationController.visibleViewController {
+            return visibleViewController.topMostViewController
+        }
+
+        if let tabBarController = self as? UITabBarController,
+           let selectedViewController = tabBarController.selectedViewController {
+            return selectedViewController.topMostViewController
+        }
+
+        return self
     }
 }
