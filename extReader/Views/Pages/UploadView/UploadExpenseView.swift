@@ -28,7 +28,8 @@ struct UploadExpenseView: View {
                     Image("logo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 200, height: 200)
+                        .frame(maxWidth: 240)
+                        .accessibilityLabel("Somai")
                 }
                 Spacer()
                 // Header
