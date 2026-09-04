@@ -14,8 +14,6 @@ struct ServerErrorResponse: Decodable {
 }
 
 class ExpenseService {
-    private let baseUrl = "https://api.renatoxico.net"
-
     static let shared = ExpenseService()
     private init() {}
 
@@ -25,11 +23,10 @@ class ExpenseService {
     }
 
     func fetchReports() async throws -> [ReportSummary] {
-        let urlString = baseUrl + "/v2/extract/reports"
-
-        guard let url = URL(string: urlString) else {
-            throw NetworkError.invalidURL
-        }
+        let url = AppConfig.apiBaseURL
+            .appending(path: "v2")
+            .appending(path: "extract")
+            .appending(path: "reports")
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
@@ -56,12 +53,11 @@ class ExpenseService {
     }
 
     func fetchExpenses(sessionId: String) async throws -> ExpenseResponse {
-        let reportId = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathSegmentAllowed) ?? sessionId
-        let urlString = baseUrl + "/v2/extract/summary/" + reportId
-
-        guard let url = URL(string: urlString) else {
-            throw NetworkError.invalidURL
-        }
+        let url = AppConfig.apiBaseURL
+            .appending(path: "v2")
+            .appending(path: "extract")
+            .appending(path: "summary")
+            .appending(path: sessionId)
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
@@ -73,11 +69,6 @@ class ExpenseService {
         }
 
         guard httpResponse.statusCode == 200 else {
-            if httpResponse.statusCode == 403,
-               let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
-               serverError.message == "Premium subscription required" {
-                throw NetworkError.premiumRequired
-            }
             if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
                let message = serverError.message {
                 throw NetworkError.serverError(message)
@@ -94,9 +85,9 @@ class ExpenseService {
 
     func processFiles(_ files: [URL]) async throws -> ExpenseResponse {
         let boundary = UUID().uuidString
-        guard let baseURL = URL(string: baseUrl + "/v2/extract") else {
-            throw NetworkError.invalidURL
-        }
+        let baseURL = AppConfig.apiBaseURL
+            .appending(path: "v2")
+            .appending(path: "extract")
         var request = URLRequest(url: baseURL)
         request.httpMethod = "POST"
         request.timeoutInterval = 30
@@ -130,11 +121,6 @@ class ExpenseService {
         }
 
         guard httpResponse.statusCode == 200 else {
-            if httpResponse.statusCode == 403,
-               let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
-               serverError.message == "Premium subscription required" {
-                throw NetworkError.premiumRequired
-            }
             if let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
                let message = serverError.message {
                 throw NetworkError.serverError(message)
@@ -150,11 +136,11 @@ class ExpenseService {
     }
 
     func exportCSV(sessionId: String) async throws -> Data {
-        let reportId = sessionId.addingPercentEncoding(withAllowedCharacters: .urlPathSegmentAllowed) ?? sessionId
-        let urlString = baseUrl + "/v2/extract/export/" + reportId
-        guard let url = URL(string: urlString) else {
-            throw NetworkError.invalidURL
-        }
+        let url = AppConfig.apiBaseURL
+            .appending(path: "v2")
+            .appending(path: "extract")
+            .appending(path: "export")
+            .appending(path: sessionId)
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
         request.setValue(try await authHeader(), forHTTPHeaderField: "Authorization")
@@ -181,7 +167,6 @@ class ExpenseService {
         case decodingFailed(String)
         case fileAccessDenied(String)
         case serverError(String)
-        case premiumRequired
 
         var errorDescription: String? {
             switch self {
@@ -195,19 +180,9 @@ class ExpenseService {
                 return "Access denied to file: \(fileName)"
             case .serverError(let message):
                 return message
-            case .premiumRequired:
-                return "Assinatura Premium necessária"
             }
         }
     }
-}
-
-private extension CharacterSet {
-    static let urlPathSegmentAllowed: CharacterSet = {
-        var allowed = CharacterSet.urlPathAllowed
-        allowed.remove(charactersIn: "/?#[]@!$&'()*+,;=")
-        return allowed
-    }()
 }
 
 private extension Data {

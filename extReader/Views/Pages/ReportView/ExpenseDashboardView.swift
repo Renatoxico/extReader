@@ -111,7 +111,8 @@ struct ExpenseDashboardView: View {
 
 }
 
+#if DEBUG
 #Preview {
-    let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
-    ExpenseDashboardView(report: mock)
+    ExpenseDashboardView(report: .preview)
 }
+#endif

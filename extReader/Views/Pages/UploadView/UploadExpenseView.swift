@@ -16,7 +16,6 @@ struct UploadExpenseView: View {
     @State private var invalidFileName = ""
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    @State private var showPremiumAlert = false
     private let maxFileCount = 6
     private let maxFileSizeBytes = 512 * 1024
     
@@ -118,11 +117,6 @@ struct UploadExpenseView: View {
         } message: {
             Text(errorMessage)
         }
-        .alert("Premium necessário", isPresented: $showPremiumAlert) {
-            Button("Cancelar", role: .cancel) {}
-        } message: {
-            Text("Esta funcionalidade requer uma assinatura Premium.")
-        }
     }
     
     func sendFiles(files: [URL], onInvalid: (_ invalidFile: URL) -> Void) async {
@@ -145,8 +139,6 @@ struct UploadExpenseView: View {
             let res = try await ExpenseService.shared.processFiles(files)
             onSuccess(res)
             fileSelector.selectedFiles.removeAll()
-        } catch ExpenseService.NetworkError.premiumRequired {
-            showPremiumAlert = true
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
@@ -196,5 +188,4 @@ struct DocumentPicker: UIViewControllerRepresentable {
         }
     }
 }
-
 

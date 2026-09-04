@@ -12,31 +12,39 @@ struct ExpenseReportViewTabs: View {
     @State private var exportedCSVURL: URL? = nil
     @State private var showShareSheet = false
     @State private var showExportError = false
+    @State private var dismissedWarningSignature: String? = nil
 
     var body: some View {
         let busiestDay = report.NotableDays.sorted{$0.transactions > $1.transactions}.first
         let expensiveDay = report.NotableDays.sorted{$0.total > $1.total}.first
         let recurringExpense = report.SmartGroupExpenselist.sorted{$0.instances > $1.instances}.first
-        var showWarning = report.AllExpenses.contains(where:    { $0.category == "" })
+        let warningSignature = uncategorizedWarningSignature
+        let showWarning = !warningSignature.isEmpty && dismissedWarningSignature != warningSignature
         ZStack {
             BackgroundView()
             if(showWarning){
-                HStack{
+                HStack(spacing: 12) {
                     Text("Despesas não categorizadas totalmente!")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.yellow.opacity(0.5))
-                        .cornerRadius(0)
-                        .shadow(radius: 4)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                        .zIndex(1)
-                        .onTapGesture {
-                            showWarning = false
-                        }
+                    Spacer()
+                    Button {
+                        dismissedWarningSignature = warningSignature
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    .accessibilityLabel("Dispensar aviso")
                 }
-            }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.yellow.opacity(0.5))
+                .cornerRadius(0)
+                .shadow(radius: 4)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(1)
+                        }
             TabView {
                 CategoryChartViewDG(report: report)
 
@@ -96,9 +104,22 @@ struct ExpenseReportViewTabs: View {
         }
         isExporting = false
     }
+
+    private var uncategorizedWarningSignature: String {
+        let uncategorizedExpenses = report.AllExpenses.filter { expense in
+            expense.category?.isEmpty ?? true
+        }
+
+        guard !uncategorizedExpenses.isEmpty else { return "" }
+
+        return ([report.sessionToken] + uncategorizedExpenses.map {
+            "\($0.expenseName)|\($0.date)|\($0.value)"
+        }).joined(separator: "#")
+    }
 }
 
+#if DEBUG
 #Preview {
-    let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
-    ExpenseReportViewTabs(report: mock)
+    ExpenseReportViewTabs(report: .preview)
 }
+#endif

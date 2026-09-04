@@ -182,6 +182,11 @@ struct TotalByCategory: Decodable, Identifiable, Hashable {
         case totalAmount
     }
 
+    init(category: String, value: Double) {
+        self.category = category
+        self.value = value
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.category = try container.decode(String.self, forKey: .category)
@@ -201,6 +206,12 @@ struct NotableDay: Decodable, Identifiable {
         case transactions
         case totalAmount
         case transactionCount
+    }
+
+    init(date: String, total: Double, transactions: Int) {
+        self.date = date
+        self.total = total
+        self.transactions = transactions
     }
 
     init(from decoder: Decoder) throws {

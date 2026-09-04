@@ -243,9 +243,10 @@ struct CategoryChartViewDG: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    let mock = Bundle.main.decode(ExpenseResponse.self, from: "FakeReport.json")
     NavigationStack {
-        CategoryChartViewDG(report: mock)
+        CategoryChartViewDG(report: .preview)
     }
 }
+#endif

@@ -2,34 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>FirebaseAPIKey</key>
-	<string>$(FIREBASE_API_KEY)</string>
-	<key>FirebaseAuthDomain</key>
-	<string>$(FIREBASE_AUTH_DOMAIN)</string>
-	<key>FirebaseProjectID</key>
-	<string>$(FIREBASE_PROJECT_ID)</string>
-	<key>FirebaseStorageBucket</key>
-	<string>$(FIREBASE_STORAGE_BUCKET)</string>
-	<key>FirebaseMessagingSenderID</key>
-	<string>$(FIREBASE_MESSAGING_SENDER_ID)</string>
-	<key>FirebaseAppID</key>
-	<string>$(FIREBASE_APP_ID)</string>
-	<key>FirebaseClientID</key>
-	<string>$(FIREBASE_CLIENT_ID)</string>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>UIRequiresFullScreen</key>
-	<true/>
-	<key>CFBundleURLTypes</key>
-	<array>
-			<dict>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>$(FIREBASE_REVERSED_CLIENT_ID)</string>
-					<string>extreader</string>
-				</array>
-			</dict>
-	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -43,5 +15,29 @@
 			</array>
 		</dict>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(FIREBASE_REVERSED_CLIENT_ID)</string>
+				<string>extreader</string>
+			</array>
+		</dict>
+	</array>
+	<key>FirebaseAPIKey</key>
+	<string>$(FIREBASE_API_KEY)</string>
+	<key>FirebaseAppID</key>
+	<string>$(FIREBASE_APP_ID)</string>
+	<key>FirebaseAuthDomain</key>
+	<string>$(FIREBASE_AUTH_DOMAIN)</string>
+	<key>FirebaseClientID</key>
+	<string>$(FIREBASE_CLIENT_ID)</string>
+	<key>FirebaseMessagingSenderID</key>
+	<string>$(FIREBASE_MESSAGING_SENDER_ID)</string>
+	<key>FirebaseProjectID</key>
+	<string>$(FIREBASE_PROJECT_ID)</string>
+	<key>FirebaseStorageBucket</key>
+	<string>$(FIREBASE_STORAGE_BUCKET)</string>
 </dict>
 </plist>

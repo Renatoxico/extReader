@@ -18,10 +18,6 @@ struct AccountView: View {
                 userHeader
                     .padding(.top, 32)
 
-                // Premium badge
-                premiumBadge
-
-                // Sign out
                 Button(role: .destructive) {
                     Task { await auth.signOut() }
                 } label: {
@@ -81,30 +77,6 @@ struct AccountView: View {
                         .foregroundColor(.secondary)
                 }
             }
-        }
-    }
-
-    @ViewBuilder
-    private var premiumBadge: some View {
-        switch auth.isPremium {
-        case true:
-            Label("Premium ativo", systemImage: "crown.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundColor(.yellow)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.yellow.opacity(0.15))
-                .cornerRadius(20)
-        case false:
-            Label("Plano gratuito", systemImage: "person.crop.circle")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(20)
-        case nil:
-            ProgressView()
         }
     }
 }

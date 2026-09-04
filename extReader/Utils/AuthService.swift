@@ -27,12 +27,10 @@ class AuthService: ObservableObject {
 
     @Published var isAuthenticated = false
     @Published var isAuthReady = false
-    @Published var isPremium: Bool? = nil
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     @Published var user: AuthenticatedUser? = nil
 
-    private let apiBaseURL = URL(string: "https://api.renatoxico.net")!
     private var authStateHandle: AuthStateDidChangeListenerHandle?
 
     private init() {
@@ -139,15 +137,10 @@ class AuthService: ObservableObject {
 
     // MARK: - Backend User
 
-    func checkPremiumStatus() async {
-        await establishBackendSession()
-    }
-
     private func establishBackendSession() async {
         do {
             user = try await fetchAuthenticatedUser()
             isAuthenticated = true
-            isPremium = false
         } catch {
             clearSession()
             errorMessage = authErrorMessage(for: error)
@@ -158,12 +151,14 @@ class AuthService: ObservableObject {
     private func clearSession() {
         isAuthenticated = false
         user = nil
-        isPremium = nil
     }
 
     func fetchAuthenticatedUser() async throws -> AuthenticatedUser {
         let token = try await accessToken()
-        let url = apiBaseURL.appending(path: "/api/auth/me")
+        let url = AppConfig.apiBaseURL
+            .appending(path: "api")
+            .appending(path: "auth")
+            .appending(path: "me")
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
