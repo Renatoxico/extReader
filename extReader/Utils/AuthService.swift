@@ -32,7 +32,7 @@ class AuthService: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var user: AuthenticatedUser? = nil
 
-    private let apiBaseURL = URL(string: "https://api.renatoxico.net")!
+    private let apiBaseURL = URL(string: "https://api.somai.renatoxico.net")!
     private var authStateHandle: AuthStateDidChangeListenerHandle?
 
     private init() {

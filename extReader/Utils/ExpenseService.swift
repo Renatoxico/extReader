@@ -14,7 +14,7 @@ struct ServerErrorResponse: Decodable {
 }
 
 class ExpenseService {
-    private let baseUrl = "https://api.renatoxico.net"
+    private let baseUrl = "https://api.somai.renatoxico.net"
 
     static let shared = ExpenseService()
     private init() {}
