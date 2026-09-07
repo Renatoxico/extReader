@@ -28,7 +28,7 @@ struct LoginView: View {
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    .padding(.top, 48)
+                    .padding(.top, 200)
 
                     VStack(spacing: 16) {
                         if let error = auth.errorMessage {

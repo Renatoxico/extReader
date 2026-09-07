@@ -31,6 +31,7 @@ struct UploadExpenseView: View {
                         .frame(maxWidth: 240)
                         .accessibilityLabel("Somai")
                 }
+                .padding(.top, 100)
                 Spacer()
                 // Header
                 Text("Comprovantes de Despesa")
