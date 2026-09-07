@@ -6,5 +6,5 @@
 import Foundation
 
 enum AppConfig {
-    static let apiBaseURL = URL(string: "https://api.renatoxico.net")!
+    static let apiBaseURL = URL(string: "https://api.somai.renatoxico.net")!
 }

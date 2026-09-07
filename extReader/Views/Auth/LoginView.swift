@@ -21,11 +21,8 @@ struct LoginView: View {
                         Image("logo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 140, height: 140)
-
-                        Text("extReader")
-                            .font(.title.bold())
-                            .foregroundColor(.white)
+                            .frame(maxWidth: 240)
+                            .accessibilityLabel("Somai")
 
                         Text("Analise seus extratos bancários")
                             .font(.subheadline)
