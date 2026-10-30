@@ -60,6 +60,11 @@ struct LoginView: View {
                             .cornerRadius(12)
                         }
                         .disabled(auth.isLoading)
+
+                        consentLine
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                            .tint(.green)
                     }
                     .padding(.horizontal, 24)
 
@@ -67,6 +72,29 @@ struct LoginView: View {
                 }
             }
         }
+    }
+
+    private var consentLine: Text {
+        var intro = AttributedString("Ao entrar, você concorda com os ")
+        intro.foregroundColor = Color.secondary
+
+        var terms = AttributedString("Termos de Uso")
+        terms.link = AppConfig.termsOfUseURL
+        terms.foregroundColor = Color.green
+        terms.underlineStyle = .single
+
+        var middle = AttributedString(" e a ")
+        middle.foregroundColor = Color.secondary
+
+        var privacy = AttributedString("Política de Privacidade")
+        privacy.link = AppConfig.privacyPolicyURL
+        privacy.foregroundColor = Color.green
+        privacy.underlineStyle = .single
+
+        var ending = AttributedString(".")
+        ending.foregroundColor = Color.secondary
+
+        return Text(intro + terms + middle + privacy + ending)
     }
 }
 

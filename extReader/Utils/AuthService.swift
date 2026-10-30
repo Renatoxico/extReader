@@ -28,10 +28,16 @@ class AuthService: ObservableObject {
     @Published var isAuthenticated = false
     @Published var isAuthReady = false
     @Published var isLoading = false
+    @Published var isDeletingAccount = false
+    @Published var deletionRequiresRecentSignIn = false
+    /// Shown after a failed deletion attempt. Never describes the account as deleted.
+    @Published var accountDeletionNotice: String? = nil
     @Published var errorMessage: String? = nil
     @Published var user: AuthenticatedUser? = nil
 
     private var authStateHandle: AuthStateDidChangeListenerHandle?
+    /// Set once DELETE /v2/account succeeds, so an in-flight session refresh cannot sign the user back in.
+    private var accountDeletionCompleted = false
 
     private init() {
         FirebaseConfiguration.configureIfNeeded()
@@ -80,32 +86,20 @@ class AuthService: ObservableObject {
 
     func signInWithGoogle() async {
         await runAuthAction {
-            guard let clientID = FirebaseApp.app()?.options.clientID, !clientID.isEmpty else {
-                throw AuthServiceError.missingGoogleClientID
-            }
-
-            guard let presentingViewController = UIApplication.shared.activeRootViewController else {
-                throw AuthServiceError.missingPresentingViewController
-            }
-
-            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController)
-
-            guard let idToken = result.user.idToken?.tokenString else {
-                throw AuthServiceError.missingGoogleIDToken
-            }
-
-            let credential = GoogleAuthProvider.credential(
-                withIDToken: idToken,
-                accessToken: result.user.accessToken.tokenString
-            )
+            let credential = try await self.googleCredential()
             _ = try await Auth.auth().signIn(with: credential)
             await self.establishBackendSession()
         }
     }
 
+    // TODO: Sign in with Apple is not implemented. When it is added, keep the Apple
+    // authorization code from the credential and revoke it in `revokeProviderTokensIfNeeded()`
+    // before `DELETE /v2/account`. Apple requires that revocation on account deletion.
+
     func signOut() async {
         errorMessage = nil
+        accountDeletionNotice = nil
+        deletionRequiresRecentSignIn = false
 
         do {
             GIDSignIn.sharedInstance.signOut()
@@ -116,11 +110,60 @@ class AuthService: ObservableObject {
         }
     }
 
+    func deleteAccount() async {
+        guard !isDeletingAccount else { return }
+
+        isDeletingAccount = true
+        errorMessage = nil
+        accountDeletionNotice = nil
+        deletionRequiresRecentSignIn = false
+        defer { isDeletingAccount = false }
+
+        do {
+            // Revocation runs first. If it throws, the account still exists and the user stays signed in.
+            try await revokeProviderTokensIfNeeded()
+            try await performAccountDeletionRequest()
+            endSessionAfterAccountDeletion()
+        } catch {
+            deletionRequiresRecentSignIn = isRecentLoginFailure(error)
+            accountDeletionNotice = nil
+            errorMessage = accountDeletionMessage(for: error)
+        }
+    }
+
+    /// Re-authenticates the current user without signing out.
+    /// A failed or canceled confirmation leaves the account in place.
+    func reauthenticateForAccountDeletion() async {
+        guard !isLoading, !isDeletingAccount else { return }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            let credential = try await googleCredential()
+            guard let currentUser = Auth.auth().currentUser else {
+                throw AuthServiceError.notAuthenticated
+            }
+            _ = try await currentUser.reauthenticate(with: credential)
+            deletionRequiresRecentSignIn = false
+            errorMessage = nil
+            accountDeletionNotice = "Identidade confirmada. A conta ainda não foi excluída. Toque em Excluir conta para continuar."
+        } catch {
+            if isGoogleSignInCancellation(error) {
+                return
+            }
+            deletionRequiresRecentSignIn = true
+            accountDeletionNotice = nil
+            errorMessage = "A conta não foi excluída. Não foi possível confirmar sua identidade. Tente novamente."
+        }
+    }
+
     func handleURL(_ url: URL) -> Bool {
         GIDSignIn.sharedInstance.handle(url)
     }
 
     private func runAuthAction(_ action: @escaping @MainActor () async throws -> Void) async {
+        accountDeletionCompleted = false
         isLoading = true
         errorMessage = nil
 
@@ -139,11 +182,19 @@ class AuthService: ObservableObject {
 
     private func establishBackendSession() async {
         do {
-            user = try await fetchAuthenticatedUser()
+            let authenticatedUser = try await fetchAuthenticatedUser()
+            guard !accountDeletionCompleted else {
+                clearSession()
+                isAuthReady = true
+                return
+            }
+            user = authenticatedUser
             isAuthenticated = true
         } catch {
             clearSession()
-            errorMessage = authErrorMessage(for: error)
+            if !accountDeletionCompleted {
+                errorMessage = authErrorMessage(for: error)
+            }
         }
         isAuthReady = true
     }
@@ -181,15 +232,215 @@ class AuthService: ObservableObject {
         return try JSONDecoder().decode(AuthenticatedUser.self, from: data)
     }
 
+    /// Provider cleanup that must succeed before the account is deleted.
+    /// Google Sign-In has no separate revocation step. Sign in with Apple is not implemented.
+    ///
+    /// TODO: When Sign in with Apple is added, revoke the stored Apple authorization code
+    /// here — before `DELETE /v2/account` — with `Auth.auth().revokeToken(withAuthorizationCode:)`.
+    /// If revocation fails, throw and do not sign the user out. The account still exists,
+    /// and the UI must not look as if deletion succeeded.
+    private func revokeProviderTokensIfNeeded() async throws {
+        // Google Sign-In does not require a separate revocation call.
+        //
+        // TODO: Sign in with Apple is not implemented. When that provider is added,
+        // keep the authorization code from the Apple credential and revoke it here,
+        // before DELETE /v2/account:
+        //
+        //     try await Auth.auth().revokeToken(withAuthorizationCode: authorizationCode)
+        //
+        // If revocation fails, throw. Do not sign the user out — the account still exists,
+        // and the UI must not look as if deletion succeeded.
+    }
+
+    /// Deletes the signed-in user's data and Firebase user via `DELETE /v2/account`.
+    /// Uses the same bearer ID token as the other authenticated requests.
+    private func performAccountDeletionRequest() async throws {
+        let token = try await accessToken(forcingRefresh: true)
+        let url = AppConfig.apiBaseURL
+            .appending(path: "v2")
+            .appending(path: "account")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.timeoutInterval = 30
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw AuthServiceError.invalidResponse
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw accountDeletionError(from: data, statusCode: httpResponse.statusCode)
+        }
+    }
+
+    /// Local sign-out. Call only after `DELETE /v2/account` has succeeded.
+    /// Logging out is how the UI shows that deletion worked, so failure paths must not call this.
+    private func endSessionAfterAccountDeletion() {
+        accountDeletionCompleted = true
+        errorMessage = nil
+        accountDeletionNotice = nil
+        deletionRequiresRecentSignIn = false
+        GIDSignIn.sharedInstance.signOut()
+
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            // The account is already deleted on the server. Drop the local session anyway.
+        }
+
+        clearSession()
+    }
+
+    private func accountDeletionError(from data: Data, statusCode: Int) -> AuthServiceError {
+        let serverError = try? JSONDecoder().decode(ServerErrorResponse.self, from: data)
+        if isRecentLoginRequired(serverError, statusCode: statusCode) {
+            return .requiresRecentLogin
+        }
+
+        if let message = serverError?.message, !message.isEmpty {
+            return .serverError(message)
+        }
+
+        return .accountDeletionFailed
+    }
+
+    private func isRecentLoginRequired(_ serverError: ServerErrorResponse?, statusCode: Int) -> Bool {
+        if statusCode == 401 {
+            return true
+        }
+
+        let errorCode = serverError?.errorCode?.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        if let errorCode, Self.recentLoginErrorCodes.contains(errorCode) {
+            return true
+        }
+
+        let blob = [serverError?.errorCode, serverError?.message, serverError?.details]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .lowercased()
+
+        return Self.recentLoginMarkers.contains { blob.contains($0) }
+    }
+
+    private func isRecentLoginFailure(_ error: Error) -> Bool {
+        if let authError = error as? AuthServiceError {
+            if case .requiresRecentLogin = authError {
+                return true
+            }
+            return false
+        }
+
+        return isFirebaseRecentLoginError(error)
+    }
+
+    private func isFirebaseRecentLoginError(_ error: Error) -> Bool {
+        func matches(_ nsError: NSError) -> Bool {
+            nsError.domain == AuthErrorDomain
+                && AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin
+        }
+
+        let nsError = error as NSError
+        if matches(nsError) {
+            return true
+        }
+
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError, matches(underlying) {
+            return true
+        }
+
+        return false
+    }
+
+    private func accountDeletionMessage(for error: Error) -> String {
+        if isRecentLoginFailure(error) {
+            return AuthServiceError.requiresRecentLogin.localizedDescription
+        }
+
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed, .timedOut:
+                return "A conta não foi excluída. Verifique sua internet e tente novamente."
+            default:
+                break
+            }
+        }
+
+        if let authError = error as? AuthServiceError {
+            switch authError {
+            case .requiresRecentLogin, .accountDeletionFailed:
+                return authError.localizedDescription
+            case .serverError(let message):
+                return "A conta não foi excluída. \(message)"
+            default:
+                return "A conta não foi excluída. \(authError.localizedDescription)"
+            }
+        }
+
+        return AuthServiceError.accountDeletionFailed.localizedDescription
+    }
+
+    private func googleCredential() async throws -> AuthCredential {
+        guard let clientID = FirebaseApp.app()?.options.clientID, !clientID.isEmpty else {
+            throw AuthServiceError.missingGoogleClientID
+        }
+
+        guard let presentingViewController = UIApplication.shared.activeRootViewController else {
+            throw AuthServiceError.missingPresentingViewController
+        }
+
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController)
+
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw AuthServiceError.missingGoogleIDToken
+        }
+
+        return GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: result.user.accessToken.tokenString
+        )
+    }
+
+    private func isGoogleSignInCancellation(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        return nsError.domain == kGIDSignInErrorDomain
+            && nsError.code == GIDSignInError.Code.canceled.rawValue
+    }
+
+    private static let recentLoginErrorCodes: Set<String> = [
+        "REQUIRES_RECENT_LOGIN",
+        "AUTH_REQUIRES_RECENT_LOGIN",
+        "RECENT_LOGIN_REQUIRED",
+        "CREDENTIAL_TOO_OLD_LOGIN_AGAIN",
+        "AUTH_TOKEN_INVALID",
+        "AUTH_TOKEN_MISSING"
+    ]
+
+    private static let recentLoginMarkers = [
+        "requires-recent-login",
+        "requires_recent_login",
+        "recent_login",
+        "recent-login",
+        "credential_too_old",
+        "credential-too-old",
+        "login_again"
+    ]
+
     // MARK: - Token Access (for ExpenseService)
 
     func accessToken() async throws -> String {
+        try await accessToken(forcingRefresh: false)
+    }
+
+    private func accessToken(forcingRefresh: Bool) async throws -> String {
         guard let currentUser = Auth.auth().currentUser else {
             throw AuthServiceError.notAuthenticated
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            currentUser.getIDToken { token, error in
+            currentUser.getIDTokenForcingRefresh(forcingRefresh) { token, error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
@@ -222,6 +473,8 @@ class AuthService: ObservableObject {
             return "A senha precisa ser mais forte."
         case .networkError:
             return "Não foi possível conectar ao serviço de autenticação."
+        case .requiresRecentLogin:
+            return "Por segurança, entre novamente para continuar."
         default:
             return error.localizedDescription
         }
@@ -235,6 +488,8 @@ private enum AuthServiceError: LocalizedError {
     case missingIDToken
     case missingPresentingViewController
     case notAuthenticated
+    case requiresRecentLogin
+    case accountDeletionFailed
     case serverError(String)
 
     var errorDescription: String? {
@@ -251,6 +506,10 @@ private enum AuthServiceError: LocalizedError {
             return "Não foi possível abrir o login do Google."
         case .notAuthenticated:
             return "Faça login para continuar."
+        case .requiresRecentLogin:
+            return "A conta não foi excluída. Por segurança, confirme sua identidade e tente outra vez."
+        case .accountDeletionFailed:
+            return "A conta não foi excluída. Tente novamente."
         case .serverError(let message):
             return message
         }
