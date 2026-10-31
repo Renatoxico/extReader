@@ -38,6 +38,7 @@ class AuthService: ObservableObject {
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     /// Set once DELETE /v2/account succeeds, so an in-flight session refresh cannot sign the user back in.
     private var accountDeletionCompleted = false
+    private var microsoftProvider: OAuthProvider?
 
     private init() {
         FirebaseConfiguration.configureIfNeeded()
@@ -95,6 +96,19 @@ class AuthService: ObservableObject {
     // TODO: Sign in with Apple is not implemented. When it is added, keep the Apple
     // authorization code from the credential and revoke it in `revokeProviderTokensIfNeeded()`
     // before `DELETE /v2/account`. Apple requires that revocation on account deletion.
+    func signInWithMicrosoft() async {
+        await runAuthAction {
+            let provider = OAuthProvider(providerID: "microsoft.com")
+            self.microsoftProvider = provider
+            defer { self.microsoftProvider = nil }
+
+            provider.customParameters = ["prompt": "select_account"]
+            provider.scopes = ["email"]
+            let credential = try await provider.credential(with: nil)
+            _ = try await Auth.auth().signIn(with: credential)
+            await self.establishBackendSession()
+        }
+    }
 
     func signOut() async {
         errorMessage = nil
@@ -159,7 +173,10 @@ class AuthService: ObservableObject {
     }
 
     func handleURL(_ url: URL) -> Bool {
-        GIDSignIn.sharedInstance.handle(url)
+        if Auth.auth().canHandle(url) {
+            return true
+        }
+        return GIDSignIn.sharedInstance.handle(url)
     }
 
     private func runAuthAction(_ action: @escaping @MainActor () async throws -> Void) async {
@@ -456,7 +473,7 @@ class AuthService: ObservableObject {
         }
     }
 
-    private func authErrorMessage(for error: Error) -> String {
+    private func authErrorMessage(for error: Error) -> String? {
         if let authError = error as? AuthServiceError {
             return authError.localizedDescription
         }
@@ -469,6 +486,10 @@ class AuthService: ObservableObject {
             return "Email ou senha inválidos."
         case .emailAlreadyInUse:
             return "Este email já está em uso."
+        case .accountExistsWithDifferentCredential:
+            return "Este e-mail já está cadastrado com Google. Entre com Google."
+        case .webContextCancelled:
+            return nil
         case .weakPassword:
             return "A senha precisa ser mais forte."
         case .networkError:
