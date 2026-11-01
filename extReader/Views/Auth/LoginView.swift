@@ -61,6 +61,28 @@ struct LoginView: View {
                         }
                         .disabled(auth.isLoading)
 
+                        Button {
+                            Task { await auth.signInWithMicrosoft() }
+                        } label: {
+                            HStack(spacing: 10) {
+                                if auth.isLoading {
+                                    ProgressView()
+                                        .tint(.black)
+                                } else {
+                                    Image(systemName: "globe")
+                                        .font(.headline)
+                                    Text("Entrar com Microsoft")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.black)
+                            .cornerRadius(12)
+                        }
+                        .disabled(auth.isLoading)
+
                         consentLine
                             .font(.caption)
                             .multilineTextAlignment(.center)

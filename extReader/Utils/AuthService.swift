@@ -38,6 +38,7 @@ class AuthService: ObservableObject {
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     /// Set once DELETE /v2/account succeeds, so an in-flight session refresh cannot sign the user back in.
     private var accountDeletionCompleted = false
+    private var microsoftProvider: OAuthProvider?
 
     private init() {
         FirebaseConfiguration.configureIfNeeded()
@@ -95,6 +96,13 @@ class AuthService: ObservableObject {
     // TODO: Sign in with Apple is not implemented. When it is added, keep the Apple
     // authorization code from the credential and revoke it in `revokeProviderTokensIfNeeded()`
     // before `DELETE /v2/account`. Apple requires that revocation on account deletion.
+    func signInWithMicrosoft() async {
+        await runAuthAction {
+            let credential = try await self.microsoftCredential()
+            _ = try await Auth.auth().signIn(with: credential)
+            await self.establishBackendSession()
+        }
+    }
 
     func signOut() async {
         errorMessage = nil
@@ -140,16 +148,26 @@ class AuthService: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let credential = try await googleCredential()
             guard let currentUser = Auth.auth().currentUser else {
                 throw AuthServiceError.notAuthenticated
+            }
+            let providerIDs = Set(currentUser.providerData.map(\.providerID))
+            let credential: AuthCredential
+            if providerIDs.contains("google.com") {
+                credential = try await googleCredential()
+            } else if providerIDs.contains("microsoft.com") {
+                credential = try await microsoftCredential()
+            } else {
+                // Password reauthentication needs a password supplied by the user.
+                // There is no password confirmation flow in AccountView yet.
+                throw AuthServiceError.unsupportedReauthentication
             }
             _ = try await currentUser.reauthenticate(with: credential)
             deletionRequiresRecentSignIn = false
             errorMessage = nil
             accountDeletionNotice = "Identidade confirmada. A conta ainda não foi excluída. Toque em Excluir conta para continuar."
         } catch {
-            if isGoogleSignInCancellation(error) {
+            if isSignInCancellation(error) {
                 return
             }
             deletionRequiresRecentSignIn = true
@@ -159,7 +177,10 @@ class AuthService: ObservableObject {
     }
 
     func handleURL(_ url: URL) -> Bool {
-        GIDSignIn.sharedInstance.handle(url)
+        if Auth.auth().canHandle(url) {
+            return true
+        }
+        return GIDSignIn.sharedInstance.handle(url)
     }
 
     private func runAuthAction(_ action: @escaping @MainActor () async throws -> Void) async {
@@ -403,10 +424,22 @@ class AuthService: ObservableObject {
         )
     }
 
-    private func isGoogleSignInCancellation(_ error: Error) -> Bool {
+    private func microsoftCredential() async throws -> AuthCredential {
+        let provider = OAuthProvider(providerID: "microsoft.com")
+        microsoftProvider = provider
+        defer { microsoftProvider = nil }
+
+        provider.customParameters = ["prompt": "select_account"]
+        provider.scopes = ["email"]
+        return try await provider.credential(with: nil)
+    }
+
+    private func isSignInCancellation(_ error: Error) -> Bool {
         let nsError = error as NSError
-        return nsError.domain == kGIDSignInErrorDomain
-            && nsError.code == GIDSignInError.Code.canceled.rawValue
+        return (nsError.domain == kGIDSignInErrorDomain
+            && nsError.code == GIDSignInError.Code.canceled.rawValue)
+            || (nsError.domain == AuthErrorDomain
+                && AuthErrorCode(rawValue: nsError.code) == .webContextCancelled)
     }
 
     private static let recentLoginErrorCodes: Set<String> = [
@@ -456,7 +489,7 @@ class AuthService: ObservableObject {
         }
     }
 
-    private func authErrorMessage(for error: Error) -> String {
+    private func authErrorMessage(for error: Error) -> String? {
         if let authError = error as? AuthServiceError {
             return authError.localizedDescription
         }
@@ -469,6 +502,10 @@ class AuthService: ObservableObject {
             return "Email ou senha inválidos."
         case .emailAlreadyInUse:
             return "Este email já está em uso."
+        case .accountExistsWithDifferentCredential:
+            return "Este e-mail já está cadastrado com Google. Entre com Google."
+        case .webContextCancelled:
+            return nil
         case .weakPassword:
             return "A senha precisa ser mais forte."
         case .networkError:
@@ -488,6 +525,7 @@ private enum AuthServiceError: LocalizedError {
     case missingIDToken
     case missingPresentingViewController
     case notAuthenticated
+    case unsupportedReauthentication
     case requiresRecentLogin
     case accountDeletionFailed
     case serverError(String)
@@ -506,6 +544,8 @@ private enum AuthServiceError: LocalizedError {
             return "Não foi possível abrir o login do Google."
         case .notAuthenticated:
             return "Faça login para continuar."
+        case .unsupportedReauthentication:
+            return "Não foi possível confirmar sua identidade com este provedor."
         case .requiresRecentLogin:
             return "A conta não foi excluída. Por segurança, confirme sua identidade e tente outra vez."
         case .accountDeletionFailed:
