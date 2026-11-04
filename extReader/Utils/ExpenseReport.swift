@@ -189,7 +189,7 @@ struct TotalByCategory: Decodable, Identifiable, Hashable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.category = try container.decode(String.self, forKey: .category)
+        self.category = try container.decodeIfPresent(String.self, forKey: .category) ?? "Outros / Transferências"
         self.value = try container.decodeFlexibleDouble(primary: .value, fallback: .totalAmount)
     }
 }
