@@ -189,7 +189,7 @@ struct TotalByCategory: Decodable, Identifiable, Hashable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.category = try container.decode(String.self, forKey: .category)
+        self.category = try container.decodeIfPresent(String.self, forKey: .category) ?? "Outros / Transferências"
         self.value = try container.decodeFlexibleDouble(primary: .value, fallback: .totalAmount)
     }
 }
@@ -236,13 +236,18 @@ struct NotableDay: Decodable, Identifiable {
 }
 
 struct DetailedExpense: Decodable, Identifiable, Hashable {
-    var id: String { "\(expenseName)-\(date)-\(value)" }
+    var id: String { expenseId.map { "expense-\($0)" } ?? "\(expenseName)-\(date)-\(value)" }
     let expenseName: String
     let value: Double
     let date: String
     let category: String?
 
+    let expenseId: Int64?
+    let categorySource: String?
+    let source: String?
+
     enum CodingKeys: String, CodingKey {
+        case expenseId, categorySource, source
         case expenseName
         case value
         case amount
@@ -250,7 +255,10 @@ struct DetailedExpense: Decodable, Identifiable, Hashable {
         case category
     }
 
-    init(expenseName: String, value: Double, date: String, category: String?) {
+    init(expenseName: String, value: Double, date: String, category: String?, expenseId: Int64? = nil, categorySource: String? = nil, source: String? = nil) {
+        self.expenseId = expenseId
+        self.categorySource = categorySource
+        self.source = source
         self.expenseName = expenseName
         self.value = value
         self.date = date
@@ -259,6 +267,9 @@ struct DetailedExpense: Decodable, Identifiable, Hashable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.expenseId = try container.decodeIfPresent(Int64.self, forKey: .expenseId)
+        self.categorySource = try container.decodeIfPresent(String.self, forKey: .categorySource)
+        self.source = try container.decodeIfPresent(String.self, forKey: .source)
         self.expenseName = try container.decode(String.self, forKey: .expenseName)
         self.value = try container.decodeFlexibleDouble(primary: .value, fallback: .amount)
         self.date = Self.displayDate(from: try container.decode(String.self, forKey: .date))

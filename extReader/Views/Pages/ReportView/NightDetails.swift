@@ -68,7 +68,7 @@ struct NightCategoryDetail: View {
                                     VStack(alignment: .leading) { Text(expense.name).font(.subheadline.bold()); Text("\(Int(expense.value / max(detail.total, 0.01) * 100))% da categoria").font(.caption2).foregroundStyle(Noturno.secondary) }
                                     Spacer(); Text(Noturno.money(expense.value)).moneyFont()
                                 }.nightCard()
-                            }
+                            }.nightExpenseActions(expense)
                         }
                     }
                     Text("ESTABELECIMENTOS").font(.caption.bold()).foregroundStyle(Noturno.secondary)
@@ -78,6 +78,8 @@ struct NightCategoryDetail: View {
                         }
                     }
                 }.padding(16)
+            } else {
+                ContentUnavailableView("Nenhuma despesa nesta categoria", systemImage: "tag")
             }
         }.background { NoturnoBackground(tint: color, top: true) }.navigationTitle("").navigationBarTitleDisplayMode(.inline)
     }
@@ -114,12 +116,14 @@ struct NightDaySheet: View {
                                 NightExpenseRow(expense: expense, data: data)
                                 if data.recurring.contains(expense.name) { Text("\(data.occurrence[expense.id] ?? 1)ª vez no período").font(.caption2).foregroundStyle(Noturno.secondary).padding(.leading, 58) }
                             }
-                        }
+                        }.nightExpenseActions(expense)
                     }
                     Button { store.fromSheet(.allExpenses(nil, nil), focus: date) } label: {
                         Text("Ver na linha do tempo").font(.subheadline.bold()).frame(maxWidth: .infinity).padding(14).foregroundStyle(Noturno.emerald).background(Noturno.emerald.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
                     }
                 }.padding(20).padding(.top, 12)
+            } else {
+                ContentUnavailableView("Nenhuma despesa neste dia", systemImage: "calendar", description: Text("Os totais do relatório já foram atualizados."))
             }
         }.background(LinearGradient(colors: [Color(hex: 0x1A1D1B), Color(hex: 0x121413)], startPoint: .top, endPoint: .bottom))
             .gesture(DragGesture(minimumDistance: 40).onEnded { value in
@@ -185,10 +189,12 @@ struct NightMerchantDetail: View {
                                     VStack(alignment: .leading) { Text(Noturno.date(expense.date, "EEE, dd MMM")).font(.subheadline.bold()); Text(data.occurrence[expense.id] == 1 ? "primeira no período" : "\(data.intervalDays[expense.id] ?? 0) dias depois").font(.caption2).foregroundStyle(Noturno.secondary) }
                                     Spacer(); Text(Noturno.money(expense.value)).moneyFont()
                                 }.nightCard()
-                            }
+                            }.nightExpenseActions(expense)
                         }
                     }
                 }.padding(16)
+            } else {
+                ContentUnavailableView("Nenhuma despesa neste estabelecimento", systemImage: "storefront")
             }
         }.background { NoturnoBackground(tint: Color.forCategory(merchant?.category ?? ""), top: true) }.navigationBarTitleDisplayMode(.inline)
     }
