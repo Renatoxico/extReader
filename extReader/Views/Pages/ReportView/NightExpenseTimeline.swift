@@ -52,7 +52,7 @@ struct NightExpenseTimeline: View {
     @State private var sort = NightSort.oldest
     @State private var selection = TimelineSelection()
     @State private var expanded: Set<String> = []
-    private var taskKey: String { "\(query)|\(category ?? "")|\(recurringOnly)|\(sort.rawValue)" }
+    private var taskKey: String { "\(store.revision)|\(store.month?.id ?? "all")|\(query)|\(category ?? "")|\(recurringOnly)|\(sort.rawValue)" }
     var body: some View {
         ScrollViewReader { reader in
             ScrollView {
@@ -129,7 +129,7 @@ struct NightExpenseTimeline: View {
             VStack(alignment: .leading, spacing: 8) {
                 if showsHeader { dayHeader(day) }
                 ForEach(day.expenses) { expense in
-                    Button { store.push(data.recurring.contains(expense.name) ? .merchant(expense.name) : .expense(expense.id)) } label: { NightExpenseRow(expense: expense, data: data) }
+                    Button { store.push(data.recurring.contains(expense.name) ? .merchant(expense.name) : .expense(expense.id)) } label: { NightExpenseRow(expense: expense, data: data) }.nightExpenseActions(expense)
                 }
             }.padding(.bottom, 12)
         }.fixedSize(horizontal: false, vertical: true)
@@ -155,7 +155,7 @@ struct NightExpenseTimeline: View {
                     }
                     if expanded.contains(merchant.name) {
                         ForEach(merchant.expenses) { expense in
-                            Button { store.openDay(expense.date) } label: { HStack { Text(Noturno.date(expense.date)); Spacer(); Text(Noturno.money(expense.value)).moneyFont(15) }.font(.caption).padding(.vertical, 8) }
+                            Button { store.openDay(expense.date) } label: { HStack { Text(Noturno.date(expense.date)); Spacer(); Text(Noturno.money(expense.value)).moneyFont(15) }.font(.caption).padding(.vertical, 8) }.nightExpenseActions(expense)
                         }
                     }
                 }.nightCard()

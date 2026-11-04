@@ -6,45 +6,12 @@ enum ReportRoute: Hashable {
 struct SelectedNightDay: Identifiable {
     let id: Date
 }
-@MainActor final class NightReportStore: ObservableObject {
-    @Published var prepared: PreparedReport?
-    @Published var month: YearMonth?
-    @Published var path: [ReportRoute] = []
-    @Published var selectedDay: SelectedNightDay?
-    @Published var focusDay: Date?
-    @Published var highlightedDay: Date?
-    @Published var feedback = 0
-    var current: FilteredReport? { month.flatMap { prepared?.filtered[$0] } ?? prepared?.all }
-    func openDay(_ date: Date) { selectedDay = SelectedNightDay(id: date); highlightedDay = date; feedback += 1 }
-    func push(_ route: ReportRoute) { path.append(route); feedback += 1 }
-    func load(_ response: ExpenseResponse) async {
-        let rows = response.AllExpenses.enumerated().compactMap { index, expense -> NightExpense? in
-            guard let date = NightDates.parse(expense.date) else { return nil }
-            let category = expense.category?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return NightExpense(id: index, name: expense.expenseName, date: date, value: expense.value, category: category.isEmpty ? "Outros / Transferências" : category)
-        }
-        let summaries = response.ExpensesByCategory.reduce(into: [String: Double]()) { result, cat in
-            let name = cat.category.trimmingCharacters(in: .whitespacesAndNewlines)
-            result[name.isEmpty ? "Outros / Transferências" : name, default: 0] += cat.value
-        }
-        let result = await Task.detached(priority: .userInitiated) { PreparedReport.prepare(expenses: rows, summaries: summaries) }.value
-        guard !Task.isCancelled else { return }
-        prepared = result
-    }
-    func fromSheet(_ route: ReportRoute, focus: Date? = nil) {
-        focusDay = focus
-        selectedDay = nil
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(300))
-            push(route)
-        }
-    }
-}
 struct ExpenseReportViewTabs: View {
     let report: ExpenseResponse
     var initialRoute: ReportRoute? = nil
     @StateObject private var store = NightReportStore()
     @Namespace private var categoryNamespace
+    @State private var addingExpense = false
     @State private var sharing = false
     @State private var showAmounts = false
     @State private var activity: SharePayload?
@@ -66,11 +33,20 @@ struct ExpenseReportViewTabs: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
+                    Button { addingExpense = true } label: {
+                        Image(systemName: "plus").frame(width: 36, height: 36).background(Noturno.surface2, in: Circle())
+                    }.accessibilityLabel("Adicionar despesa").disabled(store.report == nil || store.isSaving)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Button { showAmounts = false; sharing = true } label: {
                         Image(systemName: "square.and.arrow.up").frame(width: 36, height: 36)
                             .background(Noturno.surface2, in: Circle())
                     }.accessibilityLabel("Compartilhar relatório")
                 }
+            }
+            .sheet(isPresented: $addingExpense) { NightAddExpenseView() }
+            .overlay(alignment: .bottom) {
+                if store.isSaving { ProgressView("Salvando…").padding().background(Noturno.surface2, in: Capsule()).padding() }
             }
             .sheet(isPresented: $sharing) {
                 if let data = store.current {
@@ -132,14 +108,15 @@ struct ExpenseReportViewTabs: View {
         case .merchant(let name): NightMerchantDetail(data: data, name: name)
         case .allExpenses(let start, let end): NightExpenseTimeline(data: data, rangeStart: start, rangeEnd: end)
         case .expense(let id):
-            if report.AllExpenses.indices.contains(id) { ExpenseDetailView(expense: report.AllExpenses[id]) }
+            if let expense = store.expense(id) { ExpenseDetailView(expense: expense) }
+            else { ContentUnavailableView("Despesa excluída", systemImage: "receipt") }
         }
     }
     private func exportCSV() async {
         exporting = true
         defer { exporting = false }
         do {
-            let csv = try await ExpenseService.shared.exportCSV(sessionId: report.sessionToken)
+            let csv = try await ExpenseService.shared.exportCSV(sessionId: store.report?.sessionToken ?? report.sessionToken)
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("despesas-\(UUID().uuidString).csv")
             try csv.write(to: url); temporaryCSV = url; activity = SharePayload(items: [url])
         } catch { exportError = true }

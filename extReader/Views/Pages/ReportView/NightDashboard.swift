@@ -34,6 +34,9 @@ struct NightDashboard: View {
                     Text("RELATÓRIO").font(.caption.weight(.semibold)).tracking(0.6).foregroundStyle(Noturno.emerald)
                     Text("\(Noturno.date(data.start)) – \(Noturno.date(data.end, "dd MMM yyyy"))").font(.subheadline).foregroundStyle(Noturno.secondary)
                 }
+                if data.expenses.isEmpty {
+                    ContentUnavailableView("Seu relatório está vazio", systemImage: "receipt", description: Text("Use + para adicionar uma despesa."))
+                }
                 monthSelector
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title).font(.caption).foregroundStyle(Noturno.secondary)
@@ -77,6 +80,7 @@ struct NightDashboard: View {
             .toolbar { ToolbarItem(placement: .principal) {
                 if !heroVisible { Text("\(Noturno.money(data.total)) · \(Noturno.date(data.start)) – \(Noturno.date(data.end))").font(.caption.bold()).transition(.opacity) }
             } }
+            .onChange(of: data.total) { _, value in shownTotal = value }
             .onAppear {
                 if reduceMotion || data.expenses.count > 300 { shownTotal = data.total }
                 else { withAnimation(.easeOut(duration: 0.6)) { shownTotal = data.total } }
