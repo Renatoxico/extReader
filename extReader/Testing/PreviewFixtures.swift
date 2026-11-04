@@ -92,3 +92,16 @@ extension ExpenseResponse {
     )
 }
 #endif
+
+#if DEBUG
+extension ExpenseResponse {
+    static var stressPreview: ExpenseResponse {
+        guard let url = Bundle.main.url(forResource: "sample-stress", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let report = try? JSONDecoder().decode(ExpenseResponse.self, from: data) else {
+            preconditionFailure("Fixture fictício sample-stress.json ausente ou inválido")
+        }
+        return report
+    }
+}
+#endif

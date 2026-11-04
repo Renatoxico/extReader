@@ -12,14 +12,8 @@ struct ExpenseDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                let iconName: String = .iconName(forCategory:expense.category ?? "Outros / Transferências")
-                let catColor: Color = Color.forCategory(expense.category ?? "Outros / Transferências")
-                // Icon + Category
-                Image(systemName: iconName)
-                    .font(.system(size: 60))
-                    .foregroundColor(catColor)
+                NightTile(category: expense.category ?? "Outros / Transferências")
                     .padding(.top, 20)
-                    .shadow(color: catColor.opacity(0.25), radius: 8, y: 3)
                 
                 VStack(alignment: .leading, spacing: 12) {
                     
@@ -50,10 +44,10 @@ struct ExpenseDetailView: View {
                             Text("Valor")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text("R$ \(expense.value, specifier: "%.2f")")
+                            Text(Noturno.money(expense.value))
                                 .font(.title3)
                                 .fontWeight(.bold)
-                                .foregroundColor(.green)
+                                .foregroundColor(Noturno.text)
                         }
                         
                         Spacer()

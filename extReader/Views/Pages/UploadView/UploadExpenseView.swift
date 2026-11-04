@@ -95,6 +95,9 @@ struct UploadExpenseView: View {
                     Text("'\(invalidFileName)' não é um PDF. Apenas arquivos PDF são permitidos.")
                 }
                 
+                Label("Lemos só o arquivo. Nada de conexão com o seu banco.", systemImage: "lock")
+                    .font(.caption).foregroundStyle(Noturno.tertiary)
+                    .multilineTextAlignment(.center)
                 Spacer()
             }
             .padding()

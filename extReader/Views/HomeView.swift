@@ -1,61 +1,25 @@
-//
-//  ContentView.swift
-//  extReader
-//
-//  Created by Renato Dias on 25/05/25.
-//
-
 import SwiftUI
-import UIKit
 
 struct HomeView: View {
-    @State private var expenses: ExpenseResponse? = nil
-    @State private var goToDetails = false
-    @SceneStorage("selectedTab") private var selectedTab = 0
+    @State private var expenses: ExpenseResponse?
+    @SceneStorage("selectedTab") private var selectedTab = 1
+    private func openReport(_ result: ExpenseResponse) { expenses = result; selectedTab = 3 }
     var body: some View {
-        NavigationStack{
-            ZStack {
-                Color(red: 0/255, green: 8/255, blue: 4/255)
-                    .ignoresSafeArea()
-                VStack {
-                    
-                    TabView(selection: $selectedTab) {
-                        UploadExpenseView{result in
-                            self.expenses = result
-                            self.goToDetails = true}
-                            .environment(\.colorScheme, .dark)
-                            .tabItem {
-                                Label("Enviar", systemImage: "house")
-                            }
-                            .tag(1)
-                        HistoryView{result in
-                            self.expenses = result
-                            self.goToDetails = true}
-                            .environment(\.colorScheme, .dark)
-                            .tabItem {
-                                Label("Histórico", systemImage: "clock")
-                            }
-                            .tag(2)
-                        AccountView()
-                            .environment(\.colorScheme, .dark)
-                            .tabItem {
-                                Label("Conta", systemImage: "person.circle")
-                            }
-                            .tag(3)
-                    }.navigationDestination(isPresented: $goToDetails) {
-                        if let expenses = expenses {
-                            ExpenseReportViewTabs(report: expenses)
-                        } else {
-                            Text("No data") // fallback
-                        }
-                    }
+        TabView(selection: $selectedTab) {
+            NavigationStack { UploadExpenseView(onSuccess: openReport) }
+                .tabItem { Label("Enviar", systemImage: "arrow.up.doc") }.tag(1)
+            HistoryView(onSuccess: openReport)
+                .tabItem { Label("Histórico", systemImage: "clock.arrow.circlepath") }.tag(2)
+            Group {
+                if let expenses { ExpenseReportViewTabs(report: expenses).id(expenses.sessionToken) }
+                else {
+                    ContentUnavailableView("Seu relatório", systemImage: "chart.bar", description: Text("Envie um comprovante ou abra um relatório no Histórico."))
+                        .background { BackgroundView() }
                 }
-            }
-        }
+            }.tabItem { Label("Relatório", systemImage: "chart.bar") }.tag(3)
+            NavigationStack { AccountView() }
+                .tabItem { Label("Conta", systemImage: "person.crop.circle") }.tag(4)
+        }.tint(Noturno.emerald).preferredColorScheme(.dark)
     }
 }
-
-#Preview {
-    HomeView()
-}
-
+#Preview { HomeView() }

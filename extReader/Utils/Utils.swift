@@ -20,25 +20,14 @@ extension String {
 // MARK: - Color for categories
 extension Color {
     static func forCategory(_ category: String) -> Color {
-        switch category {
-        case "Roupas / Acessórios": return .purple
-        case "E-commerce / Compras online": return .indigo
-        case "Restaurante / Lanches": return .orange
-        case "Investimentos / Assinaturas profissionais": return .blue
-        case "Saúde / Farmácia / Bem-estar": return .red
-        case "Transporte / Auto": return .gray
-        case "Lazer / Entretenimento / Pets": return .yellow
-        case "Supermercado": return .green
-        case "Outros / Transferências": return .brown
-        case "Moradia / Contas": return .mint
-        default: return .secondary
-        }
+        Color(uiColor: .forCategory(category))
     }
 }
 
 // MARK: - Icon for categories
 extension String {
     static func iconName(forCategory category: String) -> String {
+        if category == "Outras" || category.hasPrefix("Outras (") { return "ellipsis" }
         switch category {
         case "Roupas / Acessórios": return "tshirt.fill"
         case "E-commerce / Compras online": return "bag.fill"
@@ -57,18 +46,26 @@ extension String {
 
 extension UIColor {
     static func forCategory(_ category: String) -> UIColor {
+        let light: UIColor
+        let darkHex: UInt
         switch category {
-        case "Roupas / Acessórios": return .purple
-        case "E-commerce / Compras online": return .systemIndigo
-        case "Restaurante / Lanches": return .systemOrange
-        case "Investimentos / Assinaturas profissionais": return .systemBlue
-        case "Saúde / Farmácia / Bem-estar": return .systemRed
-        case "Transporte / Auto": return .systemGray
-        case "Lazer / Entretenimento / Pets": return .systemYellow
-        case "Supermercado": return .systemGreen
-        case "Outros / Transferências": return .brown
-        case "Moradia / Contas": return .systemMint
-        default: return .secondaryLabel
+        case "Roupas / Acessórios": (light, darkHex) = (.systemPurple, 0xBE9ADE)
+        case "E-commerce / Compras online": (light, darkHex) = (.systemIndigo, 0x9B9FE4)
+        case "Restaurante / Lanches": (light, darkHex) = (.systemOrange, 0xE6A06B)
+        case "Investimentos / Assinaturas profissionais": (light, darkHex) = (.systemBlue, 0x80ADE0)
+        case "Saúde / Farmácia / Bem-estar": (light, darkHex) = (.systemRed, 0xDF8790)
+        case "Transporte / Auto": (light, darkHex) = (.systemGray, 0xA7AFBC)
+        case "Lazer / Entretenimento / Pets": (light, darkHex) = (.systemYellow, 0xD9C477)
+        case "Supermercado": (light, darkHex) = (UIColor(red: 0.43, green: 0.51, blue: 0.19, alpha: 1), 0xAFBF78)
+        case "Outros / Transferências": (light, darkHex) = (.brown, 0xBEA18B)
+        case "Moradia / Contas": (light, darkHex) = (.systemTeal, 0x73BCCB)
+        default: (light, darkHex) = (.secondaryLabel, 0xA1A1A8)
+        }
+        return UIColor { traits in
+            guard traits.userInterfaceStyle == .dark else { return light }
+            return UIColor(red: CGFloat((darkHex >> 16) & 255) / 255,
+                           green: CGFloat((darkHex >> 8) & 255) / 255,
+                           blue: CGFloat(darkHex & 255) / 255, alpha: 1)
         }
     }
 }
